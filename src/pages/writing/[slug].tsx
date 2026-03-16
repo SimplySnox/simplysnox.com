@@ -48,27 +48,21 @@ export default function Post({ post }) {
       </Head>
       <div className="max-w-2xl w-full px-3 md:px-1 py-21 md:py-16">
         <div className="flex items-center gap-x-2 animate-blurred-fade-in duration-300 mb-0.5">
-          <div 
-            className="text-stone-300/80 text-sm font-medium"
-            aria-label="Author"
-          >
-            {post.frontmatter.author}
-          </div>
-          <div className="h-3 border-l border-neutral-600" />
-          <div 
+          <div
             className="text-stone-300/80 text-sm font-medium"
             aria-label="Post Date"
           >
             {post.frontmatter.date}
           </div>
           <div className="h-3 border-l border-neutral-600" />
-          <div 
-            className="text-stone-300/80 text-sm font-medium flex items-center" 
+          <div
+            className="text-stone-300/80 text-sm font-medium flex items-center"
             aria-label="Time To Read"
           >
             {readingTime(post.content)}
           </div>
         </div>
+        <br />
         <div
           className="text-zinc-100 text-lg md:text-[19px] font-medium animate-blurred-fade-in duration-300 leading-6"
           aria-label="Post Title"
@@ -79,16 +73,16 @@ export default function Post({ post }) {
           className="text-soft text-[15px] md:text-base leading-6 md:leading-[1.65rem] animate-blurred-fade-in duration-300"
           aria-label="Post Content"
         >
-          <ReactMarkdown 
-            components={markdownStyles} 
+          <ReactMarkdown
+            components={markdownStyles}
             remarkPlugins={[
-              remarkGfm, 
+              remarkGfm,
               remarkUnwrapImages,
               remarkGemoji
-            ]} 
+            ]}
             rehypePlugins={[
-              rehypeRaw, 
-              rehypeAutolinkHeadings, 
+              rehypeRaw,
+              rehypeAutolinkHeadings,
               rehypeSlug,
               [rehypeExternalLinks, { target: '_blank', rel: ['noopener', 'noreferrer'] }],
               [rehypeGithubAlerts,

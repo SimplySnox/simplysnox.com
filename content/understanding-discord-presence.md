@@ -1,9 +1,9 @@
 ---
 author: Snox
-date: March 16, 2026
+date: March 08, 2026
 description: A quick look at how Discord presence works and why it can
   be useful for developers.
-lastUpdated: "16/03/26 18:20"
+lastUpdated: "03/09/26 18:20"
 tags:
 - discord
 - api
