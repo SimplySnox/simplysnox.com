@@ -50,6 +50,13 @@ export default function Post({ post }) {
         <div className="flex items-center gap-x-2 animate-blurred-fade-in duration-300 mb-0.5">
           <div 
             className="text-stone-300/80 text-sm font-medium"
+            aria-label="Author"
+          >
+            {post.frontmatter.author}
+          </div>
+          <div className="h-3 border-l border-neutral-600" />
+          <div 
+            className="text-stone-300/80 text-sm font-medium"
             aria-label="Post Date"
           >
             {post.frontmatter.date}
