@@ -3,10 +3,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 const NAV_ITEMS = [
-  { href: '/', label: 'Home' },
-  // { href: '/anime', label: 'Anime' },
-  { href: '/projects', label: 'Projects' },
-  { href: '/writing', label: 'Writing' },
+  { href: '/', label: '/home' },
+  { href: '/projects', label: '/projects' },
+  { href: '/writing', label: '/writing' },
+  { href: '/bots', label: '/bots' },
 ];
 
 const Navbar = () => {

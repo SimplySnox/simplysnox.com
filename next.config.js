@@ -2,9 +2,10 @@
 module.exports = {
     images: {
         domains: [
-            'github.com',
-            'us-east-1.tixte.net',
-            'avatars.githubusercontent.com',
+            "us-east-1.tixte.net",
+            "github.com",
+            "avatars.githubusercontent.com",
+            "cdn.discordapp.com"
         ],
     },
     async redirects() {
