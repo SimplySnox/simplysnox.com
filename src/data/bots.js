@@ -6,8 +6,15 @@ const bots = [
         key: "calcifer",
         invite:
             "https://discord.com/oauth2/authorize?client_id=1403623185005416499&scope=bot%20applications.commands",
-        description: "Modern moderation and utility Discord bot.",
-        tags: ["moderation", "utility", "discord.js"]
+        description: "Modern moderation and utility Discord bot for QuietStates.",
+        tags: [
+            "nodejs",
+            "discord",
+            "discord-bot",
+            "discord-js",
+            "moderation",
+            "utility"
+        ]
     },
     {
         id: "1480121091526496286",
@@ -16,7 +23,7 @@ const bots = [
         key: "nexmusic",
         invite:
             "https://discord.com/oauth2/authorize?client_id=1480121091526496286&permissions=3164160&scope=bot%20applications.commands",
-        description: "🎵 Free, open-source, self-hosted Discord music bot powered by Lavalink. Supports YouTube playback, queue management, and more.",
+        description: "Free, self-hosted Discord music bot powered by Lavalink. Supports YouTube playback, queue management, and more.",
         tags: [
             "nodejs",
             "discord",
