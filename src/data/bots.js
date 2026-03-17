@@ -23,13 +23,13 @@ const bots = [
         key: "nexmusic",
         invite:
             "https://discord.com/oauth2/authorize?client_id=1480121091526496286&permissions=3164160&scope=bot%20applications.commands",
-        description: "Free, self-hosted Discord music bot powered by Lavalink. Supports YouTube playback, queue management, and more.",
+        description: "Discord music bot powered by Lavalink. Supports YouTube playback, queue management, and more.",
         tags: [
             "nodejs",
             "discord",
             "discord-bot",
-            "music-bot",
             "discord-js",
+            "music-bot",
             "lavalink"
         ],
     },
