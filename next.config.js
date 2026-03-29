@@ -11,19 +11,35 @@ module.exports = {
     async redirects() {
         return [
             {
-                source: '/r/discord',
+                source: '/discord/:path*',
                 destination: 'https://discord.gg/RaQwfpCry8',
-                permanent: true,
+                permanent: false,
             },
             {
-                source: '/r/ttv',
+                source: '/r/discord/:path*',
+                destination: 'https://discord.gg/RaQwfpCry8',
+                permanent: false,
+            },
+            {
+                source: '/twitch/:path*',
                 destination: 'https://twitch.tv/simplysnox',
-                permanent: true,
+                permanent: false,
+            },
+
+            {
+                source: '/r/twitch/:path*',
+                destination: 'https://twitch.tv/simplysnox',
+                permanent: false,
             },
             {
-                source: '/r/yt',
+                source: '/youtube/:path*',
                 destination: 'https://youtube.com/@simplysnox',
-                permanent: true,
+                permanent: false,
+            },
+            {
+                source: '/r/youtube/:path*',
+                destination: 'https://youtube.com/@simplysnox',
+                permanent: false,
             },
         ]
     },

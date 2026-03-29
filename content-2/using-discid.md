@@ -43,10 +43,10 @@ To be able to get the user ID of someone, follow these steps below first:
 
 3. Go back to your command-line and run `discid [userID]`, replacing `[userID]` with the ID of the user you copied.
    
-     For example, if you had the user ID **514106760299151372** copied, run:
+     For example, if you had the user ID **630858684418752523** copied, run:
 
       ```bash
-      discid 514106760299151372
+      discid 630858684418752523
       ```
 
 Depending on what the status of the user is, different information may appear. For example, this is what it could look like in one instance:
@@ -56,7 +56,7 @@ iinter (lunar) • 🟢 Online
 Listening To: It Ain't Hard to Tell by Nas on Illmatic • 3min 14sec left
 Playing: Visual Studio Code • 📂 site  • 📝 using-discid.md (51, 4) • 44min 39sec
 Platform: Desktop
-Avatar URL: https://cdn.discordapp.com/avatars/514106760299151372/4b869d3c6104a6a29abb8a847cfdd6ad.png
+Avatar URL: https://cdn.discordapp.com/avatars/630858684418752523/4b869d3c6104a6a29abb8a847cfdd6ad.png
 ```
 
 > [!NOTE]
@@ -96,13 +96,13 @@ Watching: Crunchyroll • Laid-Back Camp
 
 This will print the user's information in a formatted, syntax-highlighted JSON response. 
 
-This is fetched from `https://api.lanyard.rest/v1/users/:user_id`, replacing `:user_id` with the user ID you entered. You can see an example of this with the user ID **514106760299151372** below.
+This is fetched from `https://api.lanyard.rest/v1/users/:user_id`, replacing `:user_id` with the user ID you entered. You can see an example of this with the user ID **630858684418752523** below.
 
 ```json
 {
   "kv": {
     "email": "hi@simplysnox.com",
-    "location": "UK",
+    "location": "US",
     "website": "https://simplysnox.com"
   },
   "spotify": {
@@ -117,15 +117,15 @@ This is fetched from `https://api.lanyard.rest/v1/users/:user_id`, replacing `:u
     "song": "Vats of Urine"
   },
   "discord_user": {
-    "id": "514106760299151372",
-    "username": "iinter",
-    "avatar": "7899b6669d533ddbb71daba31c511770",
+    "id": "630858684418752523",
+    "username": "simplysnox",
+    "avatar": "2eb353fd4917e8663fe178369b0d3f7f",
     "discriminator": "0",
     "bot": false,
     "clan": null,
-    "global_name": "lunar",
+    "global_name": "ꜱɪᴍᴘʟʏꜱɴᴏx",
     "avatar_decoration_data": null,
-    "display_name": "lunar",
+    "display_name": "ꜱɪᴍᴘʟʏꜱɴᴏx",
     "public_flags": 4194432
   },
   "activities": [
@@ -148,7 +148,7 @@ This is fetched from `https://api.lanyard.rest/v1/users/:user_id`, replacing `:u
       "sync_id": "7AE0NKbt0BemBF8wuC2uCG",
       "created_at": 1718648598163,
       "party": {
-        "id": "spotify:514106760299151372"
+        "id": "spotify:630858684418752523"
       }
     },
     {
@@ -166,10 +166,10 @@ This is fetched from `https://api.lanyard.rest/v1/users/:user_id`, replacing `:u
       "created_at": 1718648584568
     }
   ],
-  "discord_status": "online",
+  "discord_status": "dnd",
   "active_on_discord_web": false,
   "active_on_discord_desktop": true,
-  "active_on_discord_mobile": false,
+  "active_on_discord_mobile": true,
   "listening_to_spotify": true
 }
 ```
@@ -189,13 +189,13 @@ This option will open the user's Discord profile in your default web browser. Yo
 
 Lanyard also has [key-value pairs](https://en.wikipedia.org/wiki/Name%E2%80%93value_pair) (KV for short) which allow a key-value store to be added to the response by the user. See [here](https://github.com/Phineas/lanyard?tab=readme-ov-file#kv) for how to add them to your own response.
 
-Here is an example with the KV of **514106760299151372**:
+Here is an example with the KV of **630858684418752523**:
 
 ```json
 {
   "kv": {
     "email": "hi@simplysnox.com",
-    "location": "UK",
+    "location": "US",
     "website": "https://simplysnox.com"
   },
   // rest of response...
@@ -205,10 +205,10 @@ Here is an example with the KV of **514106760299151372**:
 With those key-value's set, here is the terminal output that you will get for this:
 
 ```bash
-KV of iinter: # 514106760299151372
+KV of simplysnox: # 630858684418752523
 
 email: hi@simplysnox.com
-location: UK
+location: US
 website: https://simplysnox.com
 ```
 
