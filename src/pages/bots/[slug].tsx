@@ -1,13 +1,14 @@
 import React from "react";
 import Head from "next/head";
+import fs from "fs";
+import path from "path";
+
 import Navbar from "@/components/Navbar";
 import { useRouter } from "next/router";
 import { ArrowLeft } from "lucide-react";
+
 import bots from "@/data/bots";
 import { getDiscordAvatar } from "@/utils/discordAvatar";
-
-// Import Markdown renderer
-import ReactMarkdown from "react-markdown";
 
 export default function BotPage({ bot }) {
     const router = useRouter();
@@ -37,15 +38,9 @@ export default function BotPage({ bot }) {
                     />
                     <div>
                         <div className="text-zinc-100 text-xl font-medium">{bot.name}</div>
-                        {bot.public && bot.invite && (
-                            <a
-                                href={bot.invite}
-                                target="_blank"
-                                className="text-soft text-sm hover:underline"
-                            >
-                                Invite bot →
-                            </a>
-                        )}
+                        <a href={bot.invite} target="_blank" className="text-soft text-sm hover:underline">
+                            Invite bot →
+                        </a>
                     </div>
                 </div>
 
@@ -63,13 +58,6 @@ export default function BotPage({ bot }) {
                     </div>
                 )}
 
-                {/* Readme Section */}
-                {bot.readme && (
-                    <div className="prose dark:prose-invert max-w-full mt-6">
-                        <ReactMarkdown>{bot.readme}</ReactMarkdown>
-                    </div>
-                )}
-
                 <Navbar />
             </div>
         </div>
@@ -77,9 +65,12 @@ export default function BotPage({ bot }) {
 }
 
 export async function getStaticPaths() {
+    // Filter invalid slugs to prevent Vercel build errors
     const paths = bots
         .filter((b) => typeof b.slug === "string" && b.slug.trim().length > 0)
-        .map((b) => ({ params: { slug: b.slug } }));
+        .map((b) => ({
+            params: { slug: b.slug }
+        }));
 
     return { paths, fallback: false };
 }
@@ -88,8 +79,14 @@ export async function getStaticProps({ params }) {
     const bot = bots.find((b) => b.slug === params.slug);
 
     if (!bot) {
-        return { notFound: true };
+        return {
+            notFound: true
+        };
     }
 
-    return { props: { bot } };
+    return {
+        props: {
+            bot
+        }
+    };
 }
