@@ -1,84 +1,133 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "@/components/Navbar";
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/router";
+import Navbar from "@/components/Navbar";
 
 import { ArrowUpRight } from "lucide-react";
-import { FaDiscord } from "react-icons/fa6";
-import { FaServer } from "react-icons/fa";
+import { FaServer, FaDiscord } from "react-icons/fa6";
 
 import bots from "@/data/bots";
 import { getDiscordAvatar } from "@/utils/discordAvatar";
 
-export default function Bots() {
-    const [page, setPage] = useState(1);
+export default function BotsIndex() {
+    const router = useRouter();
+
+    const [searchQuery, setSearchQuery] = useState("");
+    const [selectedTag, setSelectedTag] = useState(null);
+    const [hoveredBot, setHoveredBot] = useState(null);
+    const [currentPage, setCurrentPage] = useState(parseInt(router.query.page) || 1);
     const [counts, setCounts] = useState({});
-    const perPage = 6;
+
+    const botsPerPage = 6;
 
     useEffect(() => {
         async function loadCounts() {
             try {
-                const res = await fetch("/api/bots");
-                const data = await res.json();
-                setCounts(data);
+                const r = await fetch("/api/bots");
+                const d = await r.json();
+                setCounts(d);
             } catch (err) {
                 console.error("Failed to fetch bot counts:", err);
             }
         }
-
         loadCounts();
     }, []);
 
-    const totalPages = Math.ceil(bots.length / perPage);
-    const start = (page - 1) * perPage;
-    const currentBots = bots.slice(start, start + perPage);
+    useEffect(() => {
+        const { tag } = router.query;
+        setSelectedTag(tag || null);
+    }, [router.query]);
+
+    const filteredBots = bots.filter(bot => {
+        const q = searchQuery.toLowerCase();
+
+        const nameMatch = bot.name.toLowerCase().includes(q);
+        const tagMatch = bot.tags?.some(t => t.toLowerCase().includes(q));
+
+        const tagFilterMatch = selectedTag ? bot.tags?.includes(selectedTag) : true;
+
+        return (nameMatch || tagMatch) && tagFilterMatch;
+    });
+
+    const sortedBots = filteredBots.sort((a, b) => a.name.localeCompare(b.name));
+
+    const indexOfLast = currentPage * botsPerPage;
+    const indexOfFirst = indexOfLast - botsPerPage;
+    const currentBots = sortedBots.slice(indexOfFirst, indexOfLast);
+
+    const paginate = (pageNumber) => {
+        router.push({
+            pathname: "/bots",
+            query: { ...router.query, page: pageNumber }
+        });
+    };
+
+    const handleTagClick = (tag) => {
+        router.push({
+            pathname: "/bots",
+            query: { tag }
+        });
+        setCurrentPage(1);
+    };
+
+    const clearTags = () => router.push("/bots");
 
     return (
-        <div className="bg-main min-h-screen flex flex-col justify-center items-center antialiased p-4 md:p-8">
-            <div className="max-w-2xl w-full px-3 md:px-0 py-24 md:py-16 space-y-4">
+        <div className="bg-main min-h-screen flex flex-col items-center antialiased p-5 md:p-8">
+            <Head>
+                <title>Bots | Snox</title>
+            </Head>
 
-                <Head>
-                    <title>Bots | Snox</title>
-                </Head>
+            <div className="max-w-2xl w-full py-24 md:py-14 space-y-6">
 
-                <div className="w-full max-w-3xl space-y-4">
-                    {currentBots.map((bot, index) => (
-                        <div key={bot.id} className="animate-blurred-fade-in duration-300">
+                {/* Search */}
+                <input
+                    type="text"
+                    placeholder="Search bots…"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="text-lg placeholder:text-stone-400/80 text-soft bg-transparent border-b border-neutral-700/60 
+                     focus:border-stone-400/70 py-1 outline-none w-full duration-300"
+                />
 
-                            {index !== 0 && (
-                                <hr className="border-neutral-700/60 my-2" />
-                            )}
+                {/* Selected tag */}
+                {selectedTag && (
+                    <button
+                        onClick={clearTags}
+                        className="text-sm text-zinc-300 hover:text-zinc-300/80 flex items-center gap-1"
+                    >
+                        ← Back to all bots
+                    </button>
+                )}
 
-                            <div className="flex justify-between items-center w-full py-1 group">
+                {currentBots.map(bot => (
+                    <div key={bot.key} className="animate-blurred-fade-in duration-300">
+                        <div
+                            className="pb-3 border-b border-neutral-800 cursor-pointer group"
+                            onMouseEnter={() => setHoveredBot(bot.slug)}
+                            onMouseLeave={() => setHoveredBot(null)}
+                        >
+                            <div className="flex justify-between items-center py-1">
 
-                                <div className="flex items-center gap-3">
-
+                                {/* Left: avatar + name */}
+                                <Link href={`/bots/${bot.slug}`} className="flex items-center gap-3">
                                     <Image
                                         src={getDiscordAvatar(bot.id, bot.avatar)}
-                                        alt={bot.name}
                                         width={28}
                                         height={28}
                                         className="rounded-full"
+                                        alt={bot.name}
                                     />
-
-                                    <Link
-                                        href={bot.invite}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-zinc-200 hover:text-zinc-100 text-base font-medium flex items-center duration-300"
-                                    >
+                                    <span className="text-zinc-200 group-hover:text-zinc-100 font-medium flex items-center gap-1">
                                         {bot.name}
-                                        <ArrowUpRight
-                                            size={15}
-                                            className="ml-0.5 group-hover:translate-x-[1.5px] text-stone-400/80 group-hover:text-zinc-100 duration-200"
-                                        />
-                                    </Link>
+                                        <ArrowUpRight size={15} className="text-stone-400/80 group-hover:text-zinc-100" />
+                                    </span>
+                                </Link>
 
-                                </div>
-
+                                {/* Server count + invite */}
                                 <div className="flex items-center gap-3 text-sm text-stone-400">
-
                                     {counts[bot.key] !== undefined && (
                                         <div className="flex items-center text-xs">
                                             <FaServer size={12} className="mr-1" />
@@ -86,68 +135,72 @@ export default function Bots() {
                                         </div>
                                     )}
 
-                                    <Link
+                                    <a
                                         href={bot.invite}
                                         target="_blank"
-                                        className="text-stone-400/80 hover:text-soft flex items-center duration-300"
-                                        aria-label="Invite Bot"
+                                        className="hover:text-soft"
                                     >
                                         <FaDiscord size={18} />
-                                    </Link>
-
+                                    </a>
                                 </div>
-
                             </div>
 
-                            <div className="space-y-2">
-                                <div className="text-stone-300 text-sm mb-2">
-                                    {bot.description || "No description provided."}
-                                </div>
-
-                                {bot.tags?.length > 0 && (
-                                    <div className="flex flex-wrap gap-2">
-                                        {bot.tags.map(tag => (
-                                            <span key={tag} className="text-xs text-stone-400 font-mono">
-                                                #{tag}
-                                            </span>
-                                        ))}
-                                    </div>
-                                )}
-
+                            {/* Description */}
+                            <div className="text-stone-300 text-sm mb-2">
+                                {bot.description}
                             </div>
+
+                            {/* Tags */}
+                            {bot.tags?.length > 0 && (
+                                <div className="flex flex-wrap gap-2">
+                                    {bot.tags.map(tag => (
+                                        <span
+                                            key={tag}
+                                            onClick={() => handleTagClick(tag)}
+                                            className="text-xs text-stone-400 hover:text-zinc-300 font-mono cursor-pointer duration-200"
+                                        >
+                                            #{tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                    ))}
-                </div>
-
-                {totalPages > 1 && (
-                    <div className="flex justify-center items-center gap-4 pt-6 text-sm">
-
-                        <button
-                            onClick={() => setPage(page - 1)}
-                            disabled={page === 1}
-                            className="text-stone-400 hover:text-white disabled:opacity-40"
-                        >
-                            Prev
-                        </button>
-
-                        <span className="text-stone-400">
-                            Page {page} / {totalPages}
-                        </span>
-
-                        <button
-                            onClick={() => setPage(page + 1)}
-                            disabled={page === totalPages}
-                            className="text-stone-400 hover:text-white disabled:opacity-40"
-                        >
-                            Next
-                        </button>
-
                     </div>
-                )}
+                ))}
+
+                <Pagination
+                    total={filteredBots.length}
+                    perPage={botsPerPage}
+                    currentPage={currentPage}
+                    paginate={paginate}
+                />
 
                 <Navbar />
-
             </div>
+        </div>
+    );
+}
+
+function Pagination({ total, perPage, paginate, currentPage }) {
+    const pages = Array.from({ length: Math.ceil(total / perPage) }, (_, i) => i + 1);
+
+    if (pages.length <= 1) return null;
+
+    return (
+        <div className="flex gap-2 text-sm items-center pt-4">
+            <span className="text-stone-400">Page</span>
+            {pages.map(num => (
+                <button
+                    key={num}
+                    onClick={() => paginate(num)}
+                    className={`px-2 py-0.5 rounded-md duration-300 border 
+            ${num === currentPage
+                            ? "border-neutral-700 bg-neutral-600/60"
+                            : "border-neutral-800 bg-neutral-800 hover:bg-neutral-700/60"}`}
+                >
+                    {num}
+                </button>
+            ))}
         </div>
     );
 }
