@@ -34,7 +34,7 @@ const bots = [
     {
         id: "1488361369932791939",
         name: "Chronix",
-        avatar: "f0d76f3ab25563670eeb795e448273",
+        avatar: "f0d76f3ab25563670d1eeb795e448273",
         key: "chronix",
         slug: "chronix",
         public: true,

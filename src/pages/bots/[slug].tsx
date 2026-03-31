@@ -1,19 +1,16 @@
-// ./src/pages/bots/[slug].tsx
 import React from "react";
 import Head from "next/head";
-import { useRouter } from "next/router";
-import ReactMarkdown from "react-markdown";
-
 import Navbar from "@/components/Navbar";
+import { useRouter } from "next/router";
 import { ArrowLeft } from "lucide-react";
+import bots from "@/data/bots";
 import { getDiscordAvatar } from "@/utils/discordAvatar";
 
-import bots from "@/data/bots";
+// Import Markdown renderer
+import ReactMarkdown from "react-markdown";
 
 export default function BotPage({ bot }) {
     const router = useRouter();
-
-    if (!bot) return null;
 
     return (
         <div className="bg-main min-h-screen flex flex-col items-center antialiased p-5 md:p-8">
@@ -31,18 +28,16 @@ export default function BotPage({ bot }) {
                     <ArrowLeft size={15} /> Back to all bots
                 </button>
 
-                {/* Bot Header */}
+                {/* Heading */}
                 <div className="flex items-center gap-3">
                     <img
                         src={getDiscordAvatar(bot.id, bot.avatar)}
                         className="w-12 h-12 rounded-full"
                         alt={bot.name}
                     />
-                    <div className="flex flex-col">
+                    <div>
                         <div className="text-zinc-100 text-xl font-medium">{bot.name}</div>
-
-                        {/* Invite button – only if public */}
-                        {bot.public ? (
+                        {bot.public && bot.invite && (
                             <a
                                 href={bot.invite}
                                 target="_blank"
@@ -50,10 +45,6 @@ export default function BotPage({ bot }) {
                             >
                                 Invite bot →
                             </a>
-                        ) : (
-                            <span className="text-stone-500 text-sm cursor-not-allowed" title="Private bot – invite not available">
-                                Invite bot →
-                            </span>
                         )}
                     </div>
                 </div>
@@ -72,9 +63,9 @@ export default function BotPage({ bot }) {
                     </div>
                 )}
 
-                {/* Readme / Command Screenshots */}
+                {/* Readme Section */}
                 {bot.readme && (
-                    <div className="prose prose-invert mt-6 max-w-full">
+                    <div className="prose dark:prose-invert max-w-full mt-6">
                         <ReactMarkdown>{bot.readme}</ReactMarkdown>
                     </div>
                 )}
@@ -85,7 +76,6 @@ export default function BotPage({ bot }) {
     );
 }
 
-// Static Paths
 export async function getStaticPaths() {
     const paths = bots
         .filter((b) => typeof b.slug === "string" && b.slug.trim().length > 0)
@@ -94,9 +84,12 @@ export async function getStaticPaths() {
     return { paths, fallback: false };
 }
 
-// Static Props
 export async function getStaticProps({ params }) {
-    const bot = bots.find((b) => b.slug === params.slug) || null;
+    const bot = bots.find((b) => b.slug === params.slug);
+
+    if (!bot) {
+        return { notFound: true };
+    }
 
     return { props: { bot } };
 }
