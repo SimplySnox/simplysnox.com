@@ -17,14 +17,16 @@ export default function BotsIndex() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedTag, setSelectedTag] = useState(null);
     const [hoveredBot, setHoveredBot] = useState(null);
-    const [currentPage, setCurrentPage] = useState(parseInt(router.query.page) || 1);
+    const [currentPage, setCurrentPage] = useState(
+        parseInt(router.query.page) || 1
+    );
     const [counts, setCounts] = useState({});
 
     const botsPerPage = 6;
 
-    // Filter out bots missing slug so build never breaks
+    // Filter out bots missing slug or key
     const validBots = bots.filter(
-        (b) => typeof b.slug === "string" && b.slug.trim().length > 0
+        (b) => typeof b.key === "string" && b.key.trim().length > 0
     );
 
     useEffect(() => {
@@ -47,7 +49,6 @@ export default function BotsIndex() {
 
     const filteredBots = validBots.filter((bot) => {
         const q = searchQuery.toLowerCase();
-
         const nameMatch = bot.name.toLowerCase().includes(q);
         const tagMatch = bot.tags?.some((t) => t.toLowerCase().includes(q));
         const tagFilterMatch = selectedTag ? bot.tags?.includes(selectedTag) : true;
@@ -55,9 +56,7 @@ export default function BotsIndex() {
         return (nameMatch || tagMatch) && tagFilterMatch;
     });
 
-    const sortedBots = filteredBots.sort((a, b) =>
-        a.name.localeCompare(b.name)
-    );
+    const sortedBots = filteredBots.sort((a, b) => a.name.localeCompare(b.name));
 
     const indexOfLast = currentPage * botsPerPage;
     const indexOfFirst = indexOfLast - botsPerPage;
@@ -66,7 +65,7 @@ export default function BotsIndex() {
     const paginate = (pageNumber) => {
         router.push({
             pathname: "/bots",
-            query: { ...router.query, page: pageNumber }
+            query: { ...router.query, page: pageNumber },
         });
         setCurrentPage(pageNumber);
     };
@@ -74,7 +73,7 @@ export default function BotsIndex() {
     const handleTagClick = (tag) => {
         router.push({
             pathname: "/bots",
-            query: { tag }
+            query: { tag },
         });
         setCurrentPage(1);
     };
@@ -95,7 +94,7 @@ export default function BotsIndex() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="text-lg placeholder:text-stone-400/80 text-soft bg-transparent border-b border-neutral-700/60 
-                     focus:border-stone-400/70 py-1 outline-none w-full duration-300"
+          focus:border-stone-400/70 py-1 outline-none w-full duration-300"
                 />
 
                 {/* Selected tag */}
@@ -109,14 +108,15 @@ export default function BotsIndex() {
                 )}
 
                 {currentBots.map((bot) => (
-                    <div key={bot.slug} className="animate-blurred-fade-in duration-300">
+                    <div key={bot.key} className="animate-blurred-fade-in duration-300">
                         <div
                             className="pb-3 border-b border-neutral-800 cursor-pointer group"
-                            onMouseEnter={() => setHoveredBot(bot.slug)}
+                            onMouseEnter={() => setHoveredBot(bot.key)}
                             onMouseLeave={() => setHoveredBot(null)}
                         >
                             <div className="flex justify-between items-center py-1">
-                                <Link href={`/bots/${bot.slug}`} className="flex items-center gap-3">
+                                {/* Left: avatar + name */}
+                                <Link href={`/bots/${bot.key}`} className="flex items-center gap-3">
                                     <Image
                                         src={getDiscordAvatar(bot.id, bot.avatar)}
                                         width={28}
@@ -126,7 +126,10 @@ export default function BotsIndex() {
                                     />
                                     <span className="text-zinc-200 group-hover:text-zinc-100 font-medium flex items-center gap-1">
                                         {bot.name}
-                                        <ArrowUpRight size={15} className="text-stone-400/80 group-hover:text-zinc-100" />
+                                        <ArrowUpRight
+                                            size={15}
+                                            className="text-stone-400/80 group-hover:text-zinc-100"
+                                        />
                                     </span>
                                 </Link>
 
@@ -139,9 +142,18 @@ export default function BotsIndex() {
                                         </div>
                                     )}
 
-                                    <a href={bot.invite} target="_blank" className="hover:text-soft">
-                                        <FaDiscord size={18} />
-                                    </a>
+                                    {/* Discord icon clickable only if public */}
+                                    {bot.public ? (
+                                        <a href={bot.invite} target="_blank" className="hover:text-soft">
+                                            <FaDiscord size={18} />
+                                        </a>
+                                    ) : (
+                                        <FaDiscord
+                                            size={18}
+                                            className="text-stone-600 cursor-not-allowed opacity-50"
+                                            title="Private bot – invite not available"
+                                        />
+                                    )}
                                 </div>
                             </div>
 
@@ -180,10 +192,7 @@ export default function BotsIndex() {
 }
 
 function Pagination({ total, perPage, paginate, currentPage }) {
-    const pages = Array.from(
-        { length: Math.ceil(total / perPage) },
-        (_, i) => i + 1
-    );
+    const pages = Array.from({ length: Math.ceil(total / perPage) }, (_, i) => i + 1);
 
     if (pages.length <= 1) return null;
 
@@ -195,7 +204,7 @@ function Pagination({ total, perPage, paginate, currentPage }) {
                     key={num}
                     onClick={() => paginate(num)}
                     className={`px-2 py-0.5 rounded-md duration-300 border 
-                        ${num === currentPage
+            ${num === currentPage
                             ? "border-neutral-700 bg-neutral-600/60"
                             : "border-neutral-800 bg-neutral-800 hover:bg-neutral-700/60"
                         }`}
