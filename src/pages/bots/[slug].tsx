@@ -2,12 +2,6 @@ import React from "react";
 import Head from "next/head";
 import fs from "fs";
 import path from "path";
-import matter from "gray-matter";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import rehypeRaw from "rehype-raw";
-import rehypeSlug from "rehype-slug";
-import rehypeExternalLinks from "rehype-external-links";
 
 import Navbar from "@/components/Navbar";
 import { useRouter } from "next/router";
@@ -27,7 +21,6 @@ export default function BotPage({ bot }) {
             </Head>
 
             <div className="max-w-2xl w-full py-24 space-y-6">
-
                 {/* Back Button */}
                 <button
                     onClick={() => router.push("/bots")}
@@ -45,11 +38,7 @@ export default function BotPage({ bot }) {
                     />
                     <div>
                         <div className="text-zinc-100 text-xl font-medium">{bot.name}</div>
-                        <a
-                            href={bot.invite}
-                            target="_blank"
-                            className="text-soft text-sm hover:underline"
-                        >
+                        <a href={bot.invite} target="_blank" className="text-soft text-sm hover:underline">
                             Invite bot →
                         </a>
                     </div>
@@ -61,27 +50,12 @@ export default function BotPage({ bot }) {
                 {/* Tags */}
                 {bot.tags?.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                        {bot.tags.map(tag => (
+                        {bot.tags.map((tag) => (
                             <span key={tag} className="text-xs text-stone-400 font-mono">
                                 #{tag}
                             </span>
                         ))}
                     </div>
-                )}
-
-                {/* Markdown Content */}
-                {bot.readme && (
-                    <ReactMarkdown
-                        className="text-soft leading-6"
-                        remarkPlugins={[remarkGfm]}
-                        rehypePlugins={[
-                            rehypeRaw,
-                            rehypeSlug,
-                            [rehypeExternalLinks, { target: "_blank" }]
-                        ]}
-                    >
-                        {bot.readme}
-                    </ReactMarkdown>
                 )}
 
                 <Navbar />
@@ -91,28 +65,28 @@ export default function BotPage({ bot }) {
 }
 
 export async function getStaticPaths() {
-    // slug = bot.key
-    const paths = bots.map(b => ({ params: { slug: b.slug } }));
+    // Filter invalid slugs to prevent Vercel build errors
+    const paths = bots
+        .filter((b) => typeof b.slug === "string" && b.slug.trim().length > 0)
+        .map((b) => ({
+            params: { slug: b.slug }
+        }));
+
     return { paths, fallback: false };
 }
 
 export async function getStaticProps({ params }) {
-    const bot = bots.find(b => b.slug === params.slug);
+    const bot = bots.find((b) => b.slug === params.slug);
 
-    // Optional: load README markdown per bot
-    let readme = null;
-    const filePath = path.join(process.cwd(), "content/bots", `${params.slug}.md`);
-    if (fs.existsSync(filePath)) {
-        const f = fs.readFileSync(filePath, "utf8");
-        readme = f;
+    if (!bot) {
+        return {
+            notFound: true
+        };
     }
 
     return {
         props: {
-            bot: {
-                ...bot,
-                readme
-            }
+            bot
         }
     };
 }

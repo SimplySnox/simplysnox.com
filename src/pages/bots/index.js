@@ -22,6 +22,11 @@ export default function BotsIndex() {
 
     const botsPerPage = 6;
 
+    // Filter out bots missing slug so build never breaks
+    const validBots = bots.filter(
+        (b) => typeof b.slug === "string" && b.slug.trim().length > 0
+    );
+
     useEffect(() => {
         async function loadCounts() {
             try {
@@ -40,18 +45,19 @@ export default function BotsIndex() {
         setSelectedTag(tag || null);
     }, [router.query]);
 
-    const filteredBots = bots.filter(bot => {
+    const filteredBots = validBots.filter((bot) => {
         const q = searchQuery.toLowerCase();
 
         const nameMatch = bot.name.toLowerCase().includes(q);
-        const tagMatch = bot.tags?.some(t => t.toLowerCase().includes(q));
-
+        const tagMatch = bot.tags?.some((t) => t.toLowerCase().includes(q));
         const tagFilterMatch = selectedTag ? bot.tags?.includes(selectedTag) : true;
 
         return (nameMatch || tagMatch) && tagFilterMatch;
     });
 
-    const sortedBots = filteredBots.sort((a, b) => a.name.localeCompare(b.name));
+    const sortedBots = filteredBots.sort((a, b) =>
+        a.name.localeCompare(b.name)
+    );
 
     const indexOfLast = currentPage * botsPerPage;
     const indexOfFirst = indexOfLast - botsPerPage;
@@ -62,6 +68,7 @@ export default function BotsIndex() {
             pathname: "/bots",
             query: { ...router.query, page: pageNumber }
         });
+        setCurrentPage(pageNumber);
     };
 
     const handleTagClick = (tag) => {
@@ -81,7 +88,6 @@ export default function BotsIndex() {
             </Head>
 
             <div className="max-w-2xl w-full py-24 md:py-14 space-y-6">
-
                 {/* Search */}
                 <input
                     type="text"
@@ -102,16 +108,14 @@ export default function BotsIndex() {
                     </button>
                 )}
 
-                {currentBots.map(bot => (
-                    <div key={bot.key} className="animate-blurred-fade-in duration-300">
+                {currentBots.map((bot) => (
+                    <div key={bot.slug} className="animate-blurred-fade-in duration-300">
                         <div
                             className="pb-3 border-b border-neutral-800 cursor-pointer group"
                             onMouseEnter={() => setHoveredBot(bot.slug)}
                             onMouseLeave={() => setHoveredBot(null)}
                         >
                             <div className="flex justify-between items-center py-1">
-
-                                {/* Left: avatar + name */}
                                 <Link href={`/bots/${bot.slug}`} className="flex items-center gap-3">
                                     <Image
                                         src={getDiscordAvatar(bot.id, bot.avatar)}
@@ -135,25 +139,19 @@ export default function BotsIndex() {
                                         </div>
                                     )}
 
-                                    <a
-                                        href={bot.invite}
-                                        target="_blank"
-                                        className="hover:text-soft"
-                                    >
+                                    <a href={bot.invite} target="_blank" className="hover:text-soft">
                                         <FaDiscord size={18} />
                                     </a>
                                 </div>
                             </div>
 
                             {/* Description */}
-                            <div className="text-stone-300 text-sm mb-2">
-                                {bot.description}
-                            </div>
+                            <div className="text-stone-300 text-sm mb-2">{bot.description}</div>
 
                             {/* Tags */}
                             {bot.tags?.length > 0 && (
                                 <div className="flex flex-wrap gap-2">
-                                    {bot.tags.map(tag => (
+                                    {bot.tags.map((tag) => (
                                         <span
                                             key={tag}
                                             onClick={() => handleTagClick(tag)}
@@ -182,21 +180,25 @@ export default function BotsIndex() {
 }
 
 function Pagination({ total, perPage, paginate, currentPage }) {
-    const pages = Array.from({ length: Math.ceil(total / perPage) }, (_, i) => i + 1);
+    const pages = Array.from(
+        { length: Math.ceil(total / perPage) },
+        (_, i) => i + 1
+    );
 
     if (pages.length <= 1) return null;
 
     return (
         <div className="flex gap-2 text-sm items-center pt-4">
             <span className="text-stone-400">Page</span>
-            {pages.map(num => (
+            {pages.map((num) => (
                 <button
                     key={num}
                     onClick={() => paginate(num)}
                     className={`px-2 py-0.5 rounded-md duration-300 border 
-            ${num === currentPage
+                        ${num === currentPage
                             ? "border-neutral-700 bg-neutral-600/60"
-                            : "border-neutral-800 bg-neutral-800 hover:bg-neutral-700/60"}`}
+                            : "border-neutral-800 bg-neutral-800 hover:bg-neutral-700/60"
+                        }`}
                 >
                     {num}
                 </button>
