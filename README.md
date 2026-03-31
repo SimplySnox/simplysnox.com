@@ -6,7 +6,7 @@
 ## Clone locally
 
 ```bash
-git clone https://github.com/simplysnox/simplysnox-web.git
+git clone https://github.com/simplysnox/simplysnox.com.git
 cd simplysnox.com
 npm install
 npm run dev
@@ -20,6 +20,6 @@ npm run last-updated -- content/[file].md
 
 ## License
 
-© **2025** - Licensed under the [**MIT License**](https://github.com/simplysnox/simplysnox-web/blob/master/LICENSE).
+© **2025** - Licensed under the [**MIT License**](https://github.com/simplysnox/simplysnox.com/blob/master/LICENSE).
 
 Content inside of posts **may** be subject to other licenses.
