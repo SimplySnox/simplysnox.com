@@ -41,9 +41,7 @@ const bots = [
         invite:
             "https://discord.com/oauth2/authorize?client_id=1488361369932791939&permissions=137439332417&integration_type=0&scope=bot+applications.commands",
         description:
-            "Create and share Discord timestamps with ease using slash commands.\n" +
-            "Chronix helps you generate dynamic, localized timestamps for events, reminders, and announcements.\n" +
-            "Perfect for scheduling across time zones, improving clarity in conversations, and enhancing time-based coordination within your server.",
+            "Create and share Discord timestamps with ease—dynamic, localized, and built for scheduling across time zones.",
         tags: [
             "discord",
             "bot",
@@ -64,7 +62,7 @@ const bots = [
         public: true,
         invite:
             "https://discord.com/oauth2/authorize?client_id=1488374277919997972&permissions=137439332417&integration_type=0&scope=bot+applications.commands",
-        description: "View stats, track progress, and get milestone alerts for Chess.com & Lichess players and clubs—all in one place.",
+        description: "View stats and track progress for Chess.com & Lichess players and clubs——in Discord.",
         tags: [
             "chess",
             "lichess",
