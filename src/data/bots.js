@@ -55,6 +55,28 @@ const bots = [
             "utility"
         ],
     },
+    {
+        id: "1488374277919997972",
+        avatar: "055998ff3c10fec13c27c11d16d5d1f1",
+        name: "Stalemate",
+        key: "stalemate",
+        slug: "stalemate",
+        public: true,
+        invite:
+            "https://discord.com/oauth2/authorize?client_id=1488374277919997972&permissions=137439332417&integration_type=0&scope=bot+applications.commands",
+        description: "View stats, track progress, and get milestone alerts for Chess.com & Lichess players and clubs—all in one place.",
+        tags: [
+            "chess",
+            "lichess",
+            "stats",
+            "tracking",
+            "analytics",
+            "gaming",
+            "utility",
+            "notifications",
+            "leaderboards"
+        ]
+    },
 ];
 
 export default bots;
