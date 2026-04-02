@@ -11,6 +11,16 @@ module.exports = {
     async redirects() {
         return [
             {
+                source: '/cove/:path*',
+                destination: 'https://cove.simplysnox.com',
+                permanent: false,
+            },
+            {
+                source: '/covemc/:path*',
+                destination: 'https://cove.simplysnox.com',
+                permanent: false,
+            },
+            {
                 source: '/discord/:path*',
                 destination: 'https://discord.gg/RaQwfpCry8',
                 permanent: false,
