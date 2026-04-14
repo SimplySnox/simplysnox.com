@@ -9,7 +9,7 @@ tags: ["webdev", "networking", "dns", "beginner-friendly"]
 
 When you type a URL like:
 
-```
+```bash
 https://example.com
 ```
 
@@ -39,13 +39,13 @@ If not, it continues.
 
 Computers don’t actually understand domain names like:
 
-```
+```bash
 example.com
 ```
 
 They understand IP addresses like:
 
-```
+```bash
 93.184.216.34
 ```
 
@@ -80,7 +80,7 @@ If it’s HTTPS, a secure handshake also happens here to encrypt everything.
 
 Once connected, your browser sends a request like:
 
-```
+```bash
 GET / HTTP/1.1
 Host: example.com
 ```
@@ -104,7 +104,7 @@ The server sends back something like:
 
 Example response (simplified):
 
-```
+```bash
 HTTP/1.1 200 OK
 
 <html>
@@ -148,7 +148,7 @@ At this point, the “static page” becomes a full application.
 
 ## Simple visual flow
 
-```
+```bash
 You type URL
    ↓
 Browser checks cache
