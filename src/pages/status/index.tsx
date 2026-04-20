@@ -24,8 +24,8 @@ export default function StatusPage() {
   async function loadStatus() {
     try {
       const res = await fetch("/api/status");
-      const data: Service[] = await res.json();
-      setServices(data);
+      const data = await res.json();
+      setServices(data.services);
     } catch (error) {
       console.error("Failed to fetch status:", error);
     }
@@ -94,22 +94,22 @@ export default function StatusPage() {
                     <span className="relative flex h-3 w-3">
                       <span
                         className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${service.online
-                            ? "bg-green-400"
-                            : "bg-red-400"
+                          ? "bg-green-400"
+                          : "bg-red-400"
                           }`}
                       />
                       <span
                         className={`relative inline-flex rounded-full h-3 w-3 ${service.online
-                            ? "bg-green-500"
-                            : "bg-red-500"
+                          ? "bg-green-500"
+                          : "bg-red-500"
                           }`}
                       />
                     </span>
 
                     <span
                       className={`text-sm ${service.online
-                          ? "text-green-400"
-                          : "text-red-400"
+                        ? "text-green-400"
+                        : "text-red-400"
                         }`}
                     >
                       {service.online ? "Online" : "Offline"}
