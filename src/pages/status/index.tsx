@@ -2,13 +2,33 @@ import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import Navbar from "@/components/Navbar";
 
+type Incident = {
+  time: string;
+  status: string;
+};
+
+type Service = {
+  name: string;
+  category: string;
+  online: boolean;
+  latency: number | null;
+  uptime: string;
+  players?: number;
+  maxPlayers?: number;
+  incidents?: Incident[];
+};
+
 export default function StatusPage() {
-  const [services, setServices] = useState([]);
+  const [services, setServices] = useState<Service[]>([]);
 
   async function loadStatus() {
-    const res = await fetch("/api/status");
-    const data = await res.json();
-    setServices(data);
+    try {
+      const res = await fetch("/api/status");
+      const data: Service[] = await res.json();
+      setServices(data);
+    } catch (error) {
+      console.error("Failed to fetch status:", error);
+    }
   }
 
   useEffect(() => {
@@ -18,11 +38,17 @@ export default function StatusPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const grouped = services.reduce((acc, service) => {
-    if (!acc[service.category]) acc[service.category] = [];
-    acc[service.category].push(service);
-    return acc;
-  }, {});
+  const grouped = services.reduce<Record<string, Service[]>>(
+    (acc, service) => {
+      if (!acc[service.category]) {
+        acc[service.category] = [];
+      }
+
+      acc[service.category].push(service);
+      return acc;
+    },
+    {}
+  );
 
   return (
     <div className="bg-main min-h-screen flex flex-col items-center antialiased p-4 md:p-8">
@@ -55,9 +81,10 @@ export default function StatusPage() {
                   <div>
                     <div className="text-zinc-100">{service.name}</div>
                     <div className="text-xs text-stone-400">
-                      {service.latency
+                      {service.latency !== null
                         ? `${service.latency}ms`
                         : "Unavailable"}
+
                       {service.players !== undefined &&
                         ` • ${service.players}/${service.maxPlayers} players`}
                     </div>
@@ -66,11 +93,15 @@ export default function StatusPage() {
                   <div className="flex items-center gap-2">
                     <span className="relative flex h-3 w-3">
                       <span
-                        className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${service.online ? "bg-green-400" : "bg-red-400"
+                        className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${service.online
+                            ? "bg-green-400"
+                            : "bg-red-400"
                           }`}
                       />
                       <span
-                        className={`relative inline-flex rounded-full h-3 w-3 ${service.online ? "bg-green-500" : "bg-red-500"
+                        className={`relative inline-flex rounded-full h-3 w-3 ${service.online
+                            ? "bg-green-500"
+                            : "bg-red-500"
                           }`}
                       />
                     </span>
@@ -90,27 +121,28 @@ export default function StatusPage() {
                   Uptime: {service.uptime}%
                 </div>
 
-                {service.incidents?.length > 0 && (
-                  <div className="pt-2 border-t border-neutral-800">
-                    <div className="text-xs text-stone-500 mb-1">
-                      Recent incidents
-                    </div>
-
-                    {service.incidents.map((incident, i) => (
-                      <div
-                        key={i}
-                        className="text-xs text-stone-400 flex justify-between"
-                      >
-                        <span>{incident.status}</span>
-                        <span>
-                          {new Date(
-                            incident.time
-                          ).toLocaleString()}
-                        </span>
+                {service.incidents &&
+                  service.incidents.length > 0 && (
+                    <div className="pt-2 border-t border-neutral-800">
+                      <div className="text-xs text-stone-500 mb-1">
+                        Recent incidents
                       </div>
-                    ))}
-                  </div>
-                )}
+
+                      {service.incidents.map((incident, i) => (
+                        <div
+                          key={i}
+                          className="text-xs text-stone-400 flex justify-between"
+                        >
+                          <span>{incident.status}</span>
+                          <span>
+                            {new Date(
+                              incident.time
+                            ).toLocaleString()}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
               </div>
             ))}
           </div>
