@@ -10,7 +10,7 @@ type Incident = {
 type Service = {
   name: string;
   category: string;
-  online: boolean;
+  online: boolean | null;
   latency: number | null;
   uptime: string;
   players?: number;
@@ -112,7 +112,11 @@ export default function StatusPage() {
                         : "text-red-400"
                         }`}
                     >
-                      {service.online ? "Online" : "Offline"}
+                      {service.online === null
+                        ? "Unknown"
+                        : service.online
+                          ? "Online"
+                          : "Offline"}
                     </span>
                   </div>
                 </div>

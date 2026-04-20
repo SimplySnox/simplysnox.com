@@ -21,13 +21,14 @@ const services = [
     name: "Cove Java",
     category: "Minecraft",
     type: "minecraft-java",
-    host: "cove.simplysnox.com"
+    ip: "78.108.218.31",
+    port: 25578
   },
   {
     name: "Cove Bedrock",
     category: "Minecraft",
     type: "minecraft-bedrock",
-    host: "covebr.simplysnox.com",
+    ip: "78.108.218.31",
     port: 25830
   }
 ];
@@ -39,12 +40,10 @@ async function fetchWithTimeout(url, timeout = 4000) {
   const timer = setTimeout(() => controller.abort(), timeout);
 
   try {
-    const res = await fetch(url, {
+    return await fetch(url, {
       signal: controller.signal,
       cache: "no-store"
     });
-
-    return res;
   } finally {
     clearTimeout(timer);
   }
@@ -54,10 +53,15 @@ async function checkHttp(service) {
   const start = Date.now();
 
   try {
-    await fetchWithTimeout(service.url, 3000);
+    const res = await fetchWithTimeout(service.url, 3000);
+    const text = await res.text();
+
+    const cloudflareTunnelError =
+      text.includes("Error 1033") ||
+      text.includes("Cloudflare Tunnel error");
 
     return {
-      online: true,
+      online: res.ok && !cloudflareTunnelError,
       latency: Date.now() - start
     };
   } catch {
@@ -68,49 +72,28 @@ async function checkHttp(service) {
   }
 }
 
-async function checkJava(service) {
+async function checkMinecraft(service) {
   try {
-    const res = await fetchWithTimeout(
-      `https://api.mcstatus.io/v2/status/java/${service.host}`,
-      3500
-    );
+    const endpoint =
+      service.type === "minecraft-java"
+        ? `https://api.mcstatus.io/v2/status/java/${service.ip}:${service.port}`
+        : `https://api.mcstatus.io/v2/status/bedrock/${service.ip}:${service.port}`;
 
+    const res = await fetchWithTimeout(endpoint, 3500);
     const data = await res.json();
 
     return {
-      online: data.online,
+      online: data.online ?? false,
       latency: data.debug?.ping ?? null,
       players: data.players?.online,
       maxPlayers: data.players?.max,
-      motd: data.motd?.clean?.join(" ") || null
+      motd: Array.isArray(data.motd?.clean)
+        ? data.motd.clean.join(" ")
+        : data.motd?.clean || null
     };
   } catch {
     return {
-      online: false,
-      latency: null
-    };
-  }
-}
-
-async function checkBedrock(service) {
-  try {
-    const res = await fetchWithTimeout(
-      `https://api.mcstatus.io/v2/status/bedrock/${service.host}:${service.port}`,
-      3500
-    );
-
-    const data = await res.json();
-
-    return {
-      online: data.online,
-      latency: data.debug?.ping ?? null,
-      players: data.players?.online,
-      maxPlayers: data.players?.max,
-      motd: data.motd?.clean?.join(" ") || null
-    };
-  } catch {
-    return {
-      online: false,
+      online: null,
       latency: null
     };
   }
@@ -128,45 +111,35 @@ function updateUptime(name, online) {
 
   const record = memory[name];
 
-  if (record.lastOnline !== null && record.lastOnline !== online) {
-    record.incidents.unshift({
-      time: new Date().toISOString(),
-      status: online ? "Recovered" : "Offline"
-    });
+  if (online !== null) {
+    if (record.lastOnline !== null && record.lastOnline !== online) {
+      record.incidents.unshift({
+        time: new Date().toISOString(),
+        status: online ? "Recovered" : "Offline"
+      });
 
-    record.incidents = record.incidents.slice(0, 5);
+      record.incidents = record.incidents.slice(0, 5);
+    }
+
+    record.checks++;
+    if (online) record.onlineChecks++;
+    record.lastOnline = online;
   }
 
-  record.checks++;
-  if (online) record.onlineChecks++;
-
-  record.lastOnline = online;
-
   return {
-    uptime: ((record.onlineChecks / record.checks) * 100).toFixed(2),
+    uptime:
+      record.checks > 0
+        ? ((record.onlineChecks / record.checks) * 100).toFixed(2)
+        : "N/A",
     incidents: record.incidents
   };
 }
 
 async function checkService(service) {
-  let result;
-
-  switch (service.type) {
-    case "http":
-      result = await checkHttp(service);
-      break;
-    case "minecraft-java":
-      result = await checkJava(service);
-      break;
-    case "minecraft-bedrock":
-      result = await checkBedrock(service);
-      break;
-    default:
-      result = {
-        online: false,
-        latency: null
-      };
-  }
+  const result =
+    service.type === "http"
+      ? await checkHttp(service)
+      : await checkMinecraft(service);
 
   const stats = updateUptime(service.name, result.online);
 
@@ -182,10 +155,8 @@ export default async function handler(req, res) {
   const started = Date.now();
 
   const results = await Promise.all(
-    services.map((service) => checkService(service))
+    services.map(checkService)
   );
-
-  res.setHeader("Cache-Control", "no-store");
 
   res.status(200).json({
     generatedIn: Date.now() - started,
