@@ -30,7 +30,7 @@ const services = [
     name: "Cove Bedrock",
     category: "Minecraft",
     type: "minecraft-bedrock",
-    host: "covebr.simplysnox.com",
+    host: "78.108.218.31",
     port: 25830
   }
 ];
@@ -57,35 +57,44 @@ async function checkHttp(service) {
 
 async function checkJava(service) {
   try {
-    const res = await mcs.statusJava(service.host, service.port, {
-      query: true
-    });
+    const res = await mcs.statusJava(service.host);
 
     return {
       online: res.online,
-      latency: res.latency || null,
+      latency: res.latency ?? null,
       players: res.players?.online,
       maxPlayers: res.players?.max,
       motd: res.motd?.clean
     };
-  } catch {
-    return { online: false, latency: null };
+  } catch (error) {
+    console.error("Java status error:", error);
+    return {
+      online: false,
+      latency: null
+    };
   }
 }
 
 async function checkBedrock(service) {
   try {
-    const res = await mcs.statusBedrock(service.host, service.port);
+    const res = await mcs.statusBedrock(
+      service.host,
+      service.port
+    );
 
     return {
       online: res.online,
-      latency: res.latency || null,
+      latency: res.latency ?? null,
       players: res.players?.online,
       maxPlayers: res.players?.max,
       motd: res.motd?.clean
     };
-  } catch {
-    return { online: false, latency: null };
+  } catch (error) {
+    console.error("Bedrock status error:", error);
+    return {
+      online: false,
+      latency: null
+    };
   }
 }
 
