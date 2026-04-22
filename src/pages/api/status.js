@@ -9,13 +9,22 @@ const services = [
     name: "API",
     category: "Infrastructure",
     type: "http",
+    hidden: true,
     url: "https://api.simplysnox.com"
   },
   {
     name: "Search",
     category: "Infrastructure",
     type: "http",
+    hidden: true,
     url: "https://search.simplysnox.com"
+  },
+  {
+    name: "Jellyfin Media Server",
+    category: "Media",
+    type: "http",
+    hidden: false,
+    url: "https://jf.simplysnox.com"
   },
   {
     name: "Cove Java",
@@ -23,9 +32,7 @@ const services = [
     type: "minecraft-java",
     ip: "78.108.218.31",
     port: 25578,
-    region: "Ashburn, Virginia",
     hostMachine: {
-      provider: "SparkedHost",
       node: "b-ash-01",
       cpu: "19.47%",
       memory: "1.88 GiB / 6 GiB",
@@ -39,9 +46,7 @@ const services = [
     type: "minecraft-bedrock",
     ip: "78.108.218.31",
     port: 25830,
-    region: "Ashburn, Virginia",
     hostMachine: {
-      provider: "SparkedHost",
       node: "b-ash-01",
       cpu: "19.47%",
       memory: "1.88 GiB / 6 GiB",
@@ -52,6 +57,7 @@ const services = [
 ];
 
 const memory = {};
+const ipCache = {};
 
 async function fetchWithTimeout(url, timeout = 4000) {
   const controller = new AbortController();
@@ -67,6 +73,29 @@ async function fetchWithTimeout(url, timeout = 4000) {
   }
 }
 
+async function getIpMeta(ip) {
+  if (ipCache[ip]) return ipCache[ip];
+
+  try {
+    const res = await fetchWithTimeout(`https://ipwho.is/${ip}`, 3000);
+    const data = await res.json();
+
+    if (!data.success) return {};
+
+    const meta = {
+      region: `${data.city}, ${data.region}`,
+      provider: data.connection?.org || null,
+      country: data.country || null,
+      flag: data.flag?.emoji || ""
+    };
+
+    ipCache[ip] = meta;
+    return meta;
+  } catch {
+    return {};
+  }
+}
+
 async function checkHttp(service) {
   const start = Date.now();
 
@@ -74,19 +103,20 @@ async function checkHttp(service) {
     const res = await fetchWithTimeout(service.url, 3000);
     const text = await res.text();
 
-    const cloudflareTunnelError =
+    const tunnelError =
       text.includes("Error 1033") ||
       text.includes("Cloudflare Tunnel error");
 
     return {
-      online: res.ok && !cloudflareTunnelError,
+      online: res.ok && !tunnelError,
       latency: Date.now() - start,
-      tunnelError: cloudflareTunnelError
+      tunnelError
     };
   } catch {
     return {
       online: false,
-      latency: null
+      latency: null,
+      tunnelError: false
     };
   }
 }
@@ -102,12 +132,21 @@ async function checkMinecraft(service) {
     const res = await fetchWithTimeout(endpoint, 3500);
     const data = await res.json();
 
+    const playerList = Array.isArray(data.players?.list)
+      ? data.players.list
+      : [];
+
+    const calculatedPlayers =
+      typeof data.players?.online === "number"
+        ? data.players.online
+        : playerList.length;
+
     return {
       online: data.online ?? false,
       latency: Date.now() - start,
-      players: data.players?.online,
-      maxPlayers: data.players?.max,
-      playerList: data.players?.list || [],
+      players: calculatedPlayers,
+      maxPlayers: data.players?.max ?? null,
+      playerList,
       motd: Array.isArray(data.motd?.clean)
         ? data.motd.clean.join(" ")
         : data.motd?.clean || null
@@ -143,24 +182,13 @@ function updateUptime(name, online, latency) {
     if (record.lastOnline !== null && record.lastOnline !== online) {
       const now = new Date();
 
-      if (!online) {
-        record.outageStarted = now;
-      }
-
       record.incidents.unshift({
         time: now.toISOString(),
-        status: online ? "Recovered" : "Offline",
-        duration:
-          online && record.outageStarted
-            ? Math.round((now - record.outageStarted) / 1000)
-            : null
+        status: online ? "Recovered" : "Offline"
       });
 
       record.incidents = record.incidents.slice(0, 10);
-
-      if (online) {
-        record.outageStarted = null;
-      }
+      record.outageStarted = online ? null : now;
     }
 
     record.checks++;
@@ -174,11 +202,7 @@ function updateUptime(name, online, latency) {
         ? ((record.onlineChecks / record.checks) * 100).toFixed(2)
         : "N/A",
     incidents: record.incidents,
-    latencyHistory: record.latencyHistory,
-    outageDuration:
-      record.outageStarted
-        ? Math.round((Date.now() - record.outageStarted.getTime()) / 1000)
-        : null
+    latencyHistory: record.latencyHistory
   };
 }
 
@@ -189,11 +213,16 @@ async function checkService(service) {
       : await checkMinecraft(service);
 
   const stats = updateUptime(service.name, result.online, result.latency);
+  const ipMeta = service.ip ? await getIpMeta(service.ip) : {};
 
   return {
     ...service,
     ...result,
     ...stats,
+    region: ipMeta.region || null,
+    provider: ipMeta.provider || null,
+    country: ipMeta.country || null,
+    flag: ipMeta.flag || "",
     checkedAt: new Date().toISOString()
   };
 }
@@ -201,14 +230,16 @@ async function checkService(service) {
 export default async function handler(req, res) {
   const started = Date.now();
 
-  const results = await Promise.all(
+  const checked = await Promise.all(
     services.map(checkService)
   );
 
+  const visibleServices = checked.filter(service => !service.hidden);
+
   res.status(200).json({
     generatedIn: Date.now() - started,
-    overallOnline: results.every(s => s.online !== false),
+    overallOnline: visibleServices.every(service => service.online !== false),
     checkedAt: new Date().toISOString(),
-    services: results
+    services: visibleServices
   });
 }

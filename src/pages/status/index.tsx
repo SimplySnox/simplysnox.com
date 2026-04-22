@@ -5,7 +5,6 @@ import Navbar from "@/components/Navbar";
 type Incident = {
   time: string;
   status: string;
-  duration?: number | null;
 };
 
 type Player = {
@@ -15,7 +14,6 @@ type Player = {
 };
 
 type HostMachine = {
-  provider: string;
   node: string;
   cpu: string;
   memory: string;
@@ -31,16 +29,16 @@ type Service = {
   ip?: string;
   port?: number;
   region?: string;
+  provider?: string;
+  flag?: string;
   online: boolean | null;
   latency: number | null;
   uptime: string;
   checkedAt: string;
-  outageDuration?: string | null;
   tunnelError?: boolean;
   players?: number;
   maxPlayers?: number;
   playerList?: Player[];
-  latencyHistory?: number[];
   incidents?: Incident[];
   hostMachine?: HostMachine;
 };
@@ -59,7 +57,7 @@ export default function StatusPage() {
       setCheckedAt(data.checkedAt);
       setOverallOnline(data.overallOnline);
     } catch (error) {
-      console.error("Failed to load status:", error);
+      console.error(error);
     }
   }
 
@@ -75,7 +73,6 @@ export default function StatusPage() {
 
   const categoryColors: Record<string, string> = {
     Web: "border-blue-500",
-    Infrastructure: "border-yellow-500",
     Minecraft: "border-green-500"
   };
 
@@ -86,58 +83,36 @@ export default function StatusPage() {
       </Head>
 
       <div className="max-w-3xl w-full py-20 space-y-6">
-        <div
-          className={`rounded-xl p-4 border ${overallOnline ? "border-green-500" : "border-red-500"
-            }`}
-        >
+        <div className={`rounded-xl p-4 border ${overallOnline ? "border-green-500" : "border-red-500"}`}>
           <div className="text-zinc-100 font-medium">
-            {overallOnline
-              ? "All systems operational"
-              : "Some services experiencing issues"}
+            {overallOnline ? "All systems operational" : "Some services experiencing issues"}
           </div>
-
           <div className="text-xs text-stone-400">
-            Last checked{" "}
-            {checkedAt ? new Date(checkedAt).toLocaleString() : "Unknown"}
+            Last checked {checkedAt ? new Date(checkedAt).toLocaleString() : "Unknown"}
           </div>
         </div>
 
-        {services.map((service) => (
+        {services.map(service => (
           <div
             key={service.name}
-            className={`rounded-xl p-4 border ${categoryColors[service.category] || "border-neutral-700"
-              }`}
+            className={`rounded-xl p-4 border ${categoryColors[service.category] || "border-neutral-700"}`}
           >
-            <div className="flex justify-between items-start">
+            <div className="flex justify-between">
               <div>
                 <div className="text-zinc-100">{service.name}</div>
-
                 <div className="text-xs text-stone-400">
                   {service.latency !== null && `${service.latency}ms`}
-
                   {service.players !== undefined && (
                     <>
                       {service.latency !== null && " • "}
                       {service.players}/{service.maxPlayers} players
                     </>
                   )}
-
-                  {service.latency === null &&
-                    service.players === undefined &&
-                    "Unavailable"}
                 </div>
               </div>
 
-              <div
-                className={
-                  service.online ? "text-green-400" : "text-red-400"
-                }
-              >
-                {service.online === null
-                  ? "Unknown"
-                  : service.online
-                    ? "Online"
-                    : "Offline"}
+              <div className={service.online ? "text-green-400" : "text-red-400"}>
+                {service.online ? "Online" : "Offline"}
               </div>
             </div>
 
@@ -170,13 +145,9 @@ export default function StatusPage() {
                 <summary className="text-xs text-stone-400 cursor-pointer">
                   Online players
                 </summary>
-
                 <div className="mt-2 space-y-1 pl-2">
                   {service.playerList.map((player, index) => (
-                    <div
-                      key={player.uuid || index}
-                      className="text-xs text-zinc-300"
-                    >
+                    <div key={player.uuid || index} className="text-xs text-zinc-300">
                       {player.name_clean || player.name_raw || "Unknown"}
                     </div>
                   ))}
@@ -186,35 +157,20 @@ export default function StatusPage() {
 
             {service.region && (
               <div className="text-xs text-stone-500 mt-2">
-                Region: {service.region}
+                {service.flag} {service.region}
+              </div>
+            )}
+
+            {service.provider && (
+              <div className="text-xs text-stone-500">
+                {service.provider}
               </div>
             )}
 
             {service.hostMachine && (
-              <div className="text-xs text-stone-500 mt-2">
-                {service.hostMachine.provider} • {service.hostMachine.node} • CPU{" "}
-                {service.hostMachine.cpu}
+              <div className="text-xs text-stone-500 mt-1">
+                {service.hostMachine.node} • CPU {service.hostMachine.cpu}
               </div>
-            )}
-
-            {service.incidents && service.incidents.length > 0 && (
-              <details className="mt-3">
-                <summary className="text-xs text-stone-400 cursor-pointer">
-                  Incident history
-                </summary>
-
-                <div className="space-y-1 mt-2">
-                  {service.incidents.map((incident, idx) => (
-                    <div
-                      key={idx}
-                      className="text-xs text-stone-400"
-                    >
-                      {incident.status} —{" "}
-                      {new Date(incident.time).toLocaleString()}
-                    </div>
-                  ))}
-                </div>
-              </details>
             )}
           </div>
         ))}
