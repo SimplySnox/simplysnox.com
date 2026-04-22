@@ -3,12 +3,16 @@ const services = [
     name: "simplysnox.com",
     category: "Web",
     type: "http",
+    hidden: false,
+    hideUrl: false,
     url: "https://simplysnox.com"
   },
   {
     name: "quietstates.xyz",
     category: "Web",
     type: "http",
+    hidden: false,
+    hideUrl: false,
     url: "https://quietstates.xyz"
   },
   {
@@ -16,6 +20,7 @@ const services = [
     category: "Infrastructure",
     type: "http",
     hidden: true,
+    hideUrl: false,
     url: "https://api.simplysnox.com"
   },
   {
@@ -23,18 +28,30 @@ const services = [
     category: "Infrastructure",
     type: "http",
     hidden: true,
+    hideUrl: true,
     url: "https://search.simplysnox.com"
+  },
+  {
+    name: "ShareX Uploader",
+    category: "Media",
+    type: "http",
+    hidden: false,
+    hideUrl: true,
+    url: "https://i.simplysnox.com/healthz"
   },
   {
     name: "Jellyfin Media Server",
     category: "Media",
     type: "http",
+    hidden: false,
+    hideUrl: true,
     url: "https://jf.simplysnox.com"
   },
   {
     name: "The Cove",
     category: "Minecraft",
     type: "minecraft",
+    hidden: false,
     endpoints: {
       java: {
         ip: "78.108.218.31",
@@ -52,6 +69,7 @@ const services = [
 
 const memory = {};
 const ipCache = {};
+const gamertagCache = {};
 
 let serverTapCache = null;
 let serverTapLastFetch = 0;
@@ -102,6 +120,69 @@ function formatMinutes(minutes) {
   return [days && `${days}d`, hours && `${hours}h`, mins && `${mins}m`]
     .filter(Boolean)
     .join(" ");
+}
+
+async function normalizePlayer(player) {
+  const uuid = player.uuid;
+  const isBedrock = uuid?.startsWith("00000000-0000-0000-");
+
+  if (!isBedrock) {
+    return {
+      uuid,
+      name_clean:
+        String(player.displayName || "")
+          // remove Minecraft color codes
+          .replace(/§[0-9A-FK-OR]/gi, "")
+          // remove rank prefixes like "(visitor) "
+          .replace(/^\([^)]+\)\s*/g, "")
+          // remove leading dots
+          .replace(/^\.+/, "")
+          .trim() || "Unknown",
+      platform: "Java"
+    };
+  }
+
+  if (gamertagCache[uuid]) {
+    return {
+      uuid,
+      name_clean: gamertagCache[uuid],
+      platform: "Bedrock"
+    };
+  }
+
+  try {
+    const xuid = uuid.replace(/-/g, "");
+    const res = await fetch(`https://api.geysermc.org/v2/xbox/xuid/${xuid}`);
+    const data = await res.json();
+
+    const gamertag =
+      data?.gamertag ||
+      String(player.displayName || "")
+        .replace(/§[0-9A-FK-OR]/gi, "")
+        .replace(/^\([^)]+\)\s*/g, "")
+        .replace(/^\.+/, "")
+        .trim() ||
+      "Unknown";
+
+    gamertagCache[uuid] = gamertag;
+
+    return {
+      uuid,
+      name_clean: gamertag,
+      platform: "Bedrock"
+    };
+  } catch {
+    return {
+      uuid,
+      name_clean:
+        String(player.displayName || "")
+          .replace(/§[0-9A-FK-OR]/gi, "")
+          .replace(/^\([^)]+\)\s*/g, "")
+          .replace(/^\.+/, "")
+          .trim() || "Unknown",
+      platform: "Bedrock"
+    };
+  }
 }
 
 /* ---------------- IP META ---------------- */
@@ -163,13 +244,7 @@ async function getServerTapInfo() {
     const playersData = await playersRes.json();
 
     const javaPlayers = Array.isArray(playersData)
-      ? playersData.map(p => ({
-        uuid: p.uuid,
-        name_clean:
-          String(p.displayName || "")
-            .replace(/§[0-9A-FK-OR]/gi, "")
-            .trim() || "Unknown"
-      }))
+      ? await Promise.all(playersData.map(normalizePlayer))
       : [];
 
     serverTapCache = {
@@ -184,8 +259,7 @@ async function getServerTapInfo() {
         )} / ${formatBytes(serverData.health?.maxMemory)}`,
         uptime: formatMinutes(serverData.health?.uptime)
       },
-      javaPlayers,
-      bedrockPlayers: []
+      javaPlayers
     };
 
     serverTapLastFetch = now;
@@ -232,8 +306,7 @@ async function checkMinecraft(service, serverTapInfo) {
       online: Boolean(javaData.online || bedrockData.online),
       latency: Date.now() - start,
       players: {
-        java: javaData.players?.online ?? 0,
-        bedrock: bedrockData.players?.online ?? 0,
+        total: javaData.players?.online ?? 0,
         max: javaData.players?.max ?? null
       },
       playerList: serverTapInfo?.javaPlayers || []
@@ -242,6 +315,10 @@ async function checkMinecraft(service, serverTapInfo) {
     return {
       online: false,
       latency: null,
+      players: {
+        total: 0,
+        max: null
+      },
       playerList: []
     };
   }
@@ -275,9 +352,7 @@ async function checkService(service, serverTapInfo) {
 
   const ip = service.endpoints?.java?.ip || null;
   const ipMeta =
-    service.type === "minecraft" && ip
-      ? await getIpMeta(ip)
-      : {};
+    service.type === "minecraft" && ip ? await getIpMeta(ip) : {};
 
   return {
     ...service,

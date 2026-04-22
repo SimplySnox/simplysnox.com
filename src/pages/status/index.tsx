@@ -23,6 +23,7 @@ type Service = {
   online: boolean | null;
   uptime: string;
   url?: string;
+  hideUrl?: boolean;
   region?: string;
   provider?: string;
   flag?: string;
@@ -41,11 +42,11 @@ type Service = {
   };
 
   players?: {
-    java: number;
-    bedrock: number;
+    total: number;
     max: number | null;
   };
 
+  latency?: number | null;
   playerList?: Player[];
   hostMachine?: HostMachine | null;
   tps?: string | null;
@@ -90,10 +91,7 @@ export default function StatusPage() {
   const affectedCount = allServices.filter(s => s.online === false).length;
 
   const StatusDot = ({ online }: { online: boolean | null }) => (
-    <span
-      className={`w-2 h-2 rounded-full ${online ? "bg-green-400" : "bg-red-400"
-        }`}
-    />
+    <span className={`w-2 h-2 rounded-full ${online ? "bg-green-400" : "bg-red-400"}`} />
   );
 
   return (
@@ -103,10 +101,7 @@ export default function StatusPage() {
       </Head>
 
       <div className="max-w-3xl w-full py-20 space-y-10">
-        <div
-          className={`rounded-xl p-4 border ${overallOnline ? "border-green-500" : "border-red-500"
-            }`}
-        >
+        <div className={`rounded-xl p-4 border ${overallOnline ? "border-green-500" : "border-red-500"}`}>
           <div className="text-zinc-100 font-medium">
             {overallOnline
               ? "All systems operational"
@@ -114,22 +109,16 @@ export default function StatusPage() {
           </div>
 
           <div className="text-xs text-stone-400">
-            Last checked{" "}
-            {checkedAt ? new Date(checkedAt).toLocaleString() : "Unknown"}
+            Last checked {checkedAt ? new Date(checkedAt).toLocaleString() : "Unknown"}
           </div>
         </div>
 
         {Object.entries(groups).map(([category, services]) => (
           <div key={category} className="space-y-3">
-            <div className="text-sm text-stone-400 uppercase tracking-wide">
-              {category}
-            </div>
+            <div className="text-sm text-stone-400 uppercase tracking-wide">{category}</div>
 
             {services.map(service => (
-              <div
-                key={service.name}
-                className="rounded-xl p-4 border border-neutral-700 space-y-3"
-              >
+              <div key={service.name} className="rounded-xl p-4 border border-neutral-700 space-y-3">
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="text-zinc-100 flex items-center gap-2">
@@ -160,19 +149,22 @@ export default function StatusPage() {
 
                       {service.players && (
                         <span className="px-2 py-0.5 rounded-full text-xs bg-zinc-800 text-zinc-300">
-                          {service.players.java + service.players.bedrock}/
-                          {service.players.max ?? "?"} players
+                          {service.players.total}/{service.players.max ?? "?"} players
                         </span>
                       )}
 
-                      {service.tps && (
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-xs ${Number(service.tps) >= 18
-                              ? "bg-green-500/10 text-green-400"
-                              : "bg-zinc-800 text-zinc-300"
-                            }`}
-                        >
+                      {service.type === "minecraft" && service.tps && (
+                        <span className={`px-2 py-0.5 rounded-full text-xs ${Number(service.tps) >= 18
+                          ? "bg-green-500/10 text-green-400"
+                          : "bg-zinc-800 text-zinc-300"
+                          }`}>
                           TPS {service.tps}
+                        </span>
+                      )}
+
+                      {service.type === "minecraft" && service.latency != null && (
+                        <span className="px-2 py-0.5 rounded-full text-xs bg-zinc-800 text-zinc-300">
+                          {service.latency}ms
                         </span>
                       )}
                     </div>
@@ -183,7 +175,7 @@ export default function StatusPage() {
                   </div>
                 </div>
 
-                {service.type === "http" && service.url && (
+                {service.type === "http" && service.url && !service.hideUrl && (
                   <a
                     href={service.url}
                     target="_blank"
@@ -194,100 +186,87 @@ export default function StatusPage() {
                   </a>
                 )}
 
-                {service.endpoints && (
-                  <div className="text-xs text-blue-400 space-y-1">
-                    <div>
-                      Java:{" "}
-                      <span
-                        onClick={e =>
-                          copy(service.endpoints!.java.address, e.currentTarget)
-                        }
-                        className="text-stone-300 cursor-pointer relative copy-toast"
-                      >
-                        {service.endpoints.java.address}
-                      </span>
-                    </div>
+                {service.playerList?.length ? (
+                  <details>
+                    <summary className="text-xs text-stone-400 cursor-pointer">Players</summary>
 
-                    <div>
-                      Bedrock:{" "}
-                      <span
-                        onClick={e =>
-                          copy(service.endpoints!.bedrock.address, e.currentTarget)
-                        }
-                        className="text-stone-300 cursor-pointer relative copy-toast"
-                      >
-                        {service.endpoints.bedrock.address}
-                      </span>
-                    </div>
-                  </div>
-                )}
+                    <div className="mt-2 space-y-2 pl-1">
+                      {service.playerList.map((player, index) => {
+                        const highlighted = player.uuid === service.highlightUuid;
 
-                {(service.region ||
-                  service.provider ||
-                  service.hostMachine ||
-                  (service.playerList && service.playerList.length > 0)) && (
-                    <details className="mt-2">
-                      <summary className="text-xs text-stone-400 cursor-pointer">
-                        Debug
-                      </summary>
+                        return (
+                          <div
+                            key={player.uuid || index}
+                            className={`flex items-center justify-between text-xs ${highlighted ? "text-yellow-300" : "text-zinc-300"
+                              }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              {player.uuid && (
+                                <img
+                                  src={`https://mc-heads.net/avatar/${player.uuid}/24`}
+                                  alt={player.name_clean || "Player"}
+                                  className="w-5 h-5 rounded-sm"
+                                />
+                              )}
 
-                      <div className="mt-3 space-y-3 text-xs text-stone-500">
-                        {(service.region || service.provider) && (
-                          <div>
-                            {service.region && (
-                              <div>
-                                {service.flag} {service.region}
-                              </div>
-                            )}
-                            {service.provider && <div>{service.provider}</div>}
-                          </div>
-                        )}
-
-                        {service.hostMachine && (
-                          <div>
-                            {service.hostMachine.node}
-                            {service.hostMachine.cpu && ` • CPU ${service.hostMachine.cpu}`}
-                            <br />
-                            {service.hostMachine.memory && `RAM ${service.hostMachine.memory}`}
-                          </div>
-                        )}
-
-                        <div>
-                          Uptime: {service.uptime === "N/A" ? "N/A" : `${service.uptime}%`}
-                        </div>
-
-                        {service.playerList && service.playerList.length > 0 && (
-                          <div className="space-y-2">
-                            <div className="text-stone-400">Online players</div>
-
-                            <div className="space-y-2 pl-1">
-                              {service.playerList.map((player, index) => {
-                                const highlighted = player.uuid === service.highlightUuid;
-
-                                return (
-                                  <div
-                                    key={player.uuid || index}
-                                    className={`flex items-center gap-2 ${highlighted ? "text-yellow-300" : "text-zinc-300"
-                                      }`}
-                                  >
-                                    {player.uuid && (
-                                      <img
-                                        src={`https://mc-heads.net/avatar/${player.uuid}/24`}
-                                        alt={player.name_clean || "Player"}
-                                        className="w-5 h-5 rounded-sm"
-                                      />
-                                    )}
-
-                                    <span>{player.name_clean || "Unknown"}</span>
-                                  </div>
-                                );
-                              })}
+                              <span>{player.name_clean || "Unknown"}</span>
                             </div>
+
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${player.platform === "Bedrock"
+                                ? "bg-emerald-500/10 text-emerald-300"
+                                : "bg-orange-500/10 text-orange-300"
+                                }`}
+                            >
+                              {player.platform || "Java"}
+                            </span>
                           </div>
-                        )}
+                        );
+                      })}
+                    </div>
+                  </details>
+                ) : null}
+
+                {(service.region || service.provider || service.hostMachine) && (
+                  <details className="mt-2">
+                    <summary className="text-xs text-stone-400 cursor-pointer">
+                      Debug
+                    </summary>
+
+                    <div className="mt-3 space-y-3 text-xs text-stone-500">
+                      {(service.region || service.provider) && (
+                        <div>
+                          {service.region && (
+                            <div>
+                              {service.flag} {service.region}
+                            </div>
+                          )}
+                          {service.provider && <div>{service.provider}</div>}
+                        </div>
+                      )}
+
+                      {service.hostMachine && (
+                        <div>
+                          {service.hostMachine.node}
+                          {service.hostMachine.cpu &&
+                            ` • CPU ${service.hostMachine.cpu}`}
+                          <br />
+                          {service.hostMachine.memory &&
+                            `RAM ${service.hostMachine.memory}`}
+                          {service.hostMachine.uptime &&
+                            ` • Up ${service.hostMachine.uptime}`}
+                        </div>
+                      )}
+
+                      <div>
+                        Uptime:{" "}
+                        {service.uptime === "N/A"
+                          ? "N/A"
+                          : `${service.uptime}%`}
                       </div>
-                    </details>
-                  )}
+                    </div>
+                  </details>
+                )}
               </div>
             ))}
           </div>
