@@ -147,13 +147,19 @@ export default function StatusPage() {
                         </>
                       )}
 
-                      {service.players && (
+                      {service.type === "minecraft" && !service.online && (
+                        <span className="px-2 py-0.5 rounded-full text-xs bg-red-500/10 text-red-400">
+                          Server offline
+                        </span>
+                      )}
+
+                      {service.type === "minecraft" && service.online && service.players && (
                         <span className="px-2 py-0.5 rounded-full text-xs bg-zinc-800 text-zinc-300">
                           {service.players.total}/{service.players.max ?? "?"} players
                         </span>
                       )}
 
-                      {service.type === "minecraft" && service.tps && (
+                      {service.type === "minecraft" && service.online && service.tps && (
                         <span className={`px-2 py-0.5 rounded-full text-xs ${Number(service.tps) >= 18
                           ? "bg-green-500/10 text-green-400"
                           : "bg-zinc-800 text-zinc-300"
@@ -162,7 +168,7 @@ export default function StatusPage() {
                         </span>
                       )}
 
-                      {service.type === "minecraft" && service.latency != null && (
+                      {service.type === "minecraft" && service.online && service.latency != null && (
                         <span className="px-2 py-0.5 rounded-full text-xs bg-zinc-800 text-zinc-300">
                           {service.latency}ms
                         </span>
@@ -186,6 +192,34 @@ export default function StatusPage() {
                   </a>
                 )}
 
+                {service.type === "minecraft" && service.endpoints && service.online && (
+                  <div className="text-xs text-blue-400 space-y-1">
+                    <div>
+                      Java:{" "}
+                      <span
+                        onClick={e =>
+                          copy(service.endpoints!.java.address, e.currentTarget)
+                        }
+                        className="text-stone-300 cursor-pointer relative copy-toast"
+                      >
+                        {service.endpoints.java.address}
+                      </span>
+                    </div>
+
+                    <div>
+                      Bedrock:{" "}
+                      <span
+                        onClick={e =>
+                          copy(service.endpoints!.bedrock.address, e.currentTarget)
+                        }
+                        className="text-stone-300 cursor-pointer relative copy-toast"
+                      >
+                        {service.endpoints.bedrock.address}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
                 {service.playerList?.length ? (
                   <details>
                     <summary className="text-xs text-stone-400 cursor-pointer">Players</summary>
@@ -197,7 +231,9 @@ export default function StatusPage() {
                         return (
                           <div
                             key={player.uuid || index}
-                            className={`flex items-center justify-between text-xs ${highlighted ? "text-yellow-300" : "text-zinc-300"
+                            className={`flex items-center justify-between text-xs ${highlighted
+                              ? "text-red-300 drop-shadow-[0_0_6px_rgba(252,165,165,0.8)]"
+                              : "text-zinc-300"
                               }`}
                           >
                             <div className="flex items-center gap-2">

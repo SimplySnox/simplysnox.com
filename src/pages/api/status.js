@@ -131,11 +131,8 @@ async function normalizePlayer(player) {
       uuid,
       name_clean:
         String(player.displayName || "")
-          // remove Minecraft color codes
           .replace(/§[0-9A-FK-OR]/gi, "")
-          // remove rank prefixes like "(visitor) "
           .replace(/^\([^)]+\)\s*/g, "")
-          // remove leading dots
           .replace(/^\.+/, "")
           .trim() || "Unknown",
       platform: "Java"
@@ -354,21 +351,30 @@ async function checkService(service, serverTapInfo) {
   const ipMeta =
     service.type === "minecraft" && ip ? await getIpMeta(ip) : {};
 
+  const isOnline = result.online;
+
   return {
     ...service,
     ...result,
-    uptime: updateUptime(service.name, result.online),
-    tps: service.type === "minecraft" ? serverTapInfo?.tps : null,
+    uptime: updateUptime(service.name, isOnline),
+
+    tps: service.type === "minecraft" && isOnline ? serverTapInfo?.tps : null,
     highlightUuid:
-      service.type === "minecraft" ? HIGHLIGHT_UUID : null,
+      service.type === "minecraft" && isOnline ? HIGHLIGHT_UUID : null,
+
+    players: isOnline ? result.players : { total: 0, max: null },
+    playerList: isOnline ? result.playerList : [],
+
     region: ipMeta.region || null,
     provider: ipMeta.provider || null,
     country: ipMeta.country || null,
     flag: ipMeta.flag || "",
+
     hostMachine:
-      service.type === "minecraft"
+      service.type === "minecraft" && isOnline
         ? serverTapInfo?.hostMachine || null
         : null,
+
     checkedAt: new Date().toISOString()
   };
 }
