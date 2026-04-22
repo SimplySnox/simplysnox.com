@@ -51,12 +51,16 @@ export default function StatusPage() {
   const [overallOnline, setOverallOnline] = useState(true);
 
   async function loadStatus() {
-    const res = await fetch("/api/status");
-    const data = await res.json();
+    try {
+      const res = await fetch("/api/status");
+      const data = await res.json();
 
-    setServices(data.services);
-    setCheckedAt(data.checkedAt);
-    setOverallOnline(data.overallOnline);
+      setServices(data.services);
+      setCheckedAt(data.checkedAt);
+      setOverallOnline(data.overallOnline);
+    } catch (error) {
+      console.error("Failed to load status:", error);
+    }
   }
 
   useEffect(() => {
@@ -82,52 +86,58 @@ export default function StatusPage() {
       </Head>
 
       <div className="max-w-3xl w-full py-20 space-y-6">
-        <div className={`rounded-xl p-4 border ${overallOnline ? "border-green-500" : "border-red-500"}`}>
+        <div
+          className={`rounded-xl p-4 border ${overallOnline ? "border-green-500" : "border-red-500"
+            }`}
+        >
           <div className="text-zinc-100 font-medium">
-            {overallOnline ? "All systems operational" : "Some services experiencing issues"}
+            {overallOnline
+              ? "All systems operational"
+              : "Some services experiencing issues"}
           </div>
+
           <div className="text-xs text-stone-400">
-            Last checked {new Date(checkedAt).toLocaleString()}
+            Last checked{" "}
+            {checkedAt ? new Date(checkedAt).toLocaleString() : "Unknown"}
           </div>
         </div>
 
-        {services.map(service => (
+        {services.map((service) => (
           <div
             key={service.name}
-            className={`rounded-xl p-4 border ${categoryColors[service.category] || "border-neutral-700"}`}
+            className={`rounded-xl p-4 border ${categoryColors[service.category] || "border-neutral-700"
+              }`}
           >
-            <div className="flex justify-between">
+            <div className="flex justify-between items-start">
               <div>
                 <div className="text-zinc-100">{service.name}</div>
+
                 <div className="text-xs text-stone-400">
                   {service.latency !== null && `${service.latency}ms`}
+
                   {service.players !== undefined && (
                     <>
                       {service.latency !== null && " • "}
                       {service.players}/{service.maxPlayers} players
                     </>
                   )}
-                  {service.playerList &&
-                    service.playerList.length > 0 && (
-                      <details className="text-xs text-stone-400">
-                        <summary className="cursor-pointer">
-                          Online players
-                        </summary>
 
-                        <div className="mt-2 space-y-1 pl-2">
-                          {service.playerList.map((player, i) => (
-                            <div key={player.uuid || i}>
-                              {player.name_clean || player.name_raw}
-                            </div>
-                          ))}
-                        </div>
-                      </details>
-                    )}
+                  {service.latency === null &&
+                    service.players === undefined &&
+                    "Unavailable"}
                 </div>
               </div>
 
-              <div className={service.online ? "text-green-400" : "text-red-400"}>
-                {service.online ? "Online" : "Offline"}
+              <div
+                className={
+                  service.online ? "text-green-400" : "text-red-400"
+                }
+              >
+                {service.online === null
+                  ? "Unknown"
+                  : service.online
+                    ? "Online"
+                    : "Offline"}
               </div>
             </div>
 
@@ -136,7 +146,12 @@ export default function StatusPage() {
             </div>
 
             {service.url && (
-              <a href={service.url} target="_blank" className="text-xs text-blue-400 block mt-2">
+              <a
+                href={service.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-blue-400 block mt-2"
+              >
                 Open service
               </a>
             )}
@@ -150,13 +165,21 @@ export default function StatusPage() {
               </button>
             )}
 
-            {service.playerList?.length > 0 && (
+            {service.playerList && service.playerList.length > 0 && (
               <details className="mt-3">
                 <summary className="text-xs text-stone-400 cursor-pointer">
                   Online players
                 </summary>
-                <div className="text-xs text-zinc-300 mt-2">
-                  {service.playerList.join(", ")}
+
+                <div className="mt-2 space-y-1 pl-2">
+                  {service.playerList.map((player, index) => (
+                    <div
+                      key={player.uuid || index}
+                      className="text-xs text-zinc-300"
+                    >
+                      {player.name_clean || player.name_raw || "Unknown"}
+                    </div>
+                  ))}
                 </div>
               </details>
             )}
@@ -169,19 +192,25 @@ export default function StatusPage() {
 
             {service.hostMachine && (
               <div className="text-xs text-stone-500 mt-2">
-                {service.hostMachine.provider} • {service.hostMachine.node} • CPU {service.hostMachine.cpu}
+                {service.hostMachine.provider} • {service.hostMachine.node} • CPU{" "}
+                {service.hostMachine.cpu}
               </div>
             )}
 
-            {service.incidents?.length > 0 && (
+            {service.incidents && service.incidents.length > 0 && (
               <details className="mt-3">
                 <summary className="text-xs text-stone-400 cursor-pointer">
                   Incident history
                 </summary>
+
                 <div className="space-y-1 mt-2">
-                  {service.incidents.map((i, idx) => (
-                    <div key={idx} className="text-xs text-stone-400">
-                      {i.status} — {new Date(i.time).toLocaleString()}
+                  {service.incidents.map((incident, idx) => (
+                    <div
+                      key={idx}
+                      className="text-xs text-stone-400"
+                    >
+                      {incident.status} —{" "}
+                      {new Date(incident.time).toLocaleString()}
                     </div>
                   ))}
                 </div>
