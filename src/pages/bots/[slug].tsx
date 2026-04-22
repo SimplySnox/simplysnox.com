@@ -16,7 +16,7 @@ export default function BotPage({ bot }) {
     return (
         <div className="bg-main min-h-screen flex flex-col items-center antialiased p-5 md:p-8">
             <Head>
-                <title>{bot.name} | Snox Bots</title>
+                <title>{`${bot.name} | Snox Bots`}</title>
                 <meta name="description" content={bot.description} />
             </Head>
 

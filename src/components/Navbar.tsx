@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { href: '/projects', label: '/projects' },
   { href: '/writing', label: '/writing' },
   { href: '/bots', label: '/bots' },
+  { href: '/status', label: '/status' },
 ];
 
 const Navbar = () => {

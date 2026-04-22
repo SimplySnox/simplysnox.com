@@ -83,7 +83,7 @@ export default function BotsIndex() {
     return (
         <div className="bg-main min-h-screen flex flex-col items-center antialiased p-5 md:p-8">
             <Head>
-                <title>Bots | Snox</title>
+                <title>{"Bots | Snox"}</title>
             </Head>
 
             <div className="max-w-2xl w-full py-24 md:py-14 space-y-6">

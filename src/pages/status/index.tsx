@@ -2,11 +2,6 @@ import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import Navbar from "@/components/Navbar";
 
-type Incident = {
-  time: string;
-  status: string;
-};
-
 type Player = {
   uuid?: string;
   name_raw?: string;
@@ -14,11 +9,11 @@ type Player = {
 };
 
 type HostMachine = {
-  node: string;
-  cpu: string;
-  memory: string;
-  disk: string;
-  uptime: string;
+  provider?: string;
+  node?: string;
+  cpu?: string;
+  memory?: string;
+  uptime?: string;
 };
 
 type Service = {
@@ -34,13 +29,11 @@ type Service = {
   online: boolean | null;
   latency: number | null;
   uptime: string;
-  checkedAt: string;
-  tunnelError?: boolean;
   players?: number;
   maxPlayers?: number;
   playerList?: Player[];
-  incidents?: Incident[];
-  hostMachine?: HostMachine;
+  hostMachine?: HostMachine | null;
+  tps?: string | null;
 };
 
 export default function StatusPage() {
@@ -48,17 +41,17 @@ export default function StatusPage() {
   const [checkedAt, setCheckedAt] = useState("");
   const [overallOnline, setOverallOnline] = useState(true);
 
-  async function loadStatus() {
-    try {
-      const res = await fetch("/api/status");
-      const data = await res.json();
+  const affectedCount = services.filter(
+    service => service.online === false
+  ).length;
 
-      setServices(data.services);
-      setCheckedAt(data.checkedAt);
-      setOverallOnline(data.overallOnline);
-    } catch (error) {
-      console.error(error);
-    }
+  async function loadStatus() {
+    const res = await fetch("/api/status");
+    const data = await res.json();
+
+    setServices(data.services);
+    setCheckedAt(data.checkedAt);
+    setOverallOnline(data.overallOnline);
   }
 
   useEffect(() => {
@@ -67,14 +60,12 @@ export default function StatusPage() {
     return () => clearInterval(interval);
   }, []);
 
-  function copy(text: string) {
-    navigator.clipboard.writeText(text);
+  function getLatencyPill(ms: number | null) {
+    if (ms === null) return "bg-zinc-700 text-zinc-300";
+    if (ms < 80) return "bg-green-500/10 text-green-400";
+    if (ms < 180) return "bg-yellow-500/10 text-yellow-400";
+    return "bg-red-500/10 text-red-400";
   }
-
-  const categoryColors: Record<string, string> = {
-    Web: "border-blue-500",
-    Minecraft: "border-green-500"
-  };
 
   return (
     <div className="bg-main min-h-screen flex flex-col items-center p-4 md:p-8">
@@ -85,7 +76,9 @@ export default function StatusPage() {
       <div className="max-w-3xl w-full py-20 space-y-6">
         <div className={`rounded-xl p-4 border ${overallOnline ? "border-green-500" : "border-red-500"}`}>
           <div className="text-zinc-100 font-medium">
-            {overallOnline ? "All systems operational" : "Some services experiencing issues"}
+            {overallOnline
+              ? "All systems operational"
+              : `Some services experiencing issues • ${affectedCount} affected`}
           </div>
           <div className="text-xs text-stone-400">
             Last checked {checkedAt ? new Date(checkedAt).toLocaleString() : "Unknown"}
@@ -95,18 +88,27 @@ export default function StatusPage() {
         {services.map(service => (
           <div
             key={service.name}
-            className={`rounded-xl p-4 border ${categoryColors[service.category] || "border-neutral-700"}`}
+            className="rounded-xl p-4 border border-neutral-700"
           >
-            <div className="flex justify-between">
+            <div className="flex justify-between items-start">
               <div>
                 <div className="text-zinc-100">{service.name}</div>
-                <div className="text-xs text-stone-400">
-                  {service.latency !== null && `${service.latency}ms`}
+
+                <div className="flex flex-wrap gap-2 mt-2">
+                  <span className={`px-2 py-0.5 rounded-full text-xs ${getLatencyPill(service.latency)}`}>
+                    {service.latency !== null ? `${service.latency}ms` : "Unavailable"}
+                  </span>
+
                   {service.players !== undefined && (
-                    <>
-                      {service.latency !== null && " • "}
+                    <span className="px-2 py-0.5 rounded-full text-xs bg-zinc-800 text-zinc-300">
                       {service.players}/{service.maxPlayers} players
-                    </>
+                    </span>
+                  )}
+
+                  {service.tps && (
+                    <span className="px-2 py-0.5 rounded-full text-xs bg-zinc-800 text-zinc-300">
+                      TPS {service.tps}
+                    </span>
                   )}
                 </div>
               </div>
@@ -116,7 +118,7 @@ export default function StatusPage() {
               </div>
             </div>
 
-            <div className="text-xs text-stone-500 mt-2">
+            <div className="text-xs text-stone-500 mt-3">
               Uptime: {service.uptime}%
             </div>
 
@@ -132,31 +134,13 @@ export default function StatusPage() {
             )}
 
             {service.ip && (
-              <button
-                onClick={() => copy(`${service.ip}:${service.port}`)}
-                className="text-xs text-blue-400 mt-2"
-              >
-                Copy {service.ip}:{service.port}
-              </button>
-            )}
-
-            {service.playerList && service.playerList.length > 0 && (
-              <details className="mt-3">
-                <summary className="text-xs text-stone-400 cursor-pointer">
-                  Online players
-                </summary>
-                <div className="mt-2 space-y-1 pl-2">
-                  {service.playerList.map((player, index) => (
-                    <div key={player.uuid || index} className="text-xs text-zinc-300">
-                      {player.name_clean || player.name_raw || "Unknown"}
-                    </div>
-                  ))}
-                </div>
-              </details>
+              <div className="text-xs text-blue-400 mt-2">
+                {service.ip}:{service.port}
+              </div>
             )}
 
             {service.region && (
-              <div className="text-xs text-stone-500 mt-2">
+              <div className="text-xs text-stone-500 mt-3">
                 {service.flag} {service.region}
               </div>
             )}
@@ -170,7 +154,25 @@ export default function StatusPage() {
             {service.hostMachine && (
               <div className="text-xs text-stone-500 mt-1">
                 {service.hostMachine.node} • CPU {service.hostMachine.cpu}
+                <br />
+                RAM {service.hostMachine.memory}
               </div>
+            )}
+
+            {service.playerList && service.playerList.length > 0 && (
+              <details className="mt-3">
+                <summary className="text-xs text-stone-400 cursor-pointer">
+                  Online players
+                </summary>
+
+                <div className="mt-2 space-y-1 pl-2">
+                  {service.playerList.map((player, index) => (
+                    <div key={player.uuid || index} className="text-xs text-zinc-300">
+                      {player.name_clean || player.name_raw || "Unknown"}
+                    </div>
+                  ))}
+                </div>
+              </details>
             )}
           </div>
         ))}
