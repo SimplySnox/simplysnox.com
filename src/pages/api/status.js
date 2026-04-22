@@ -46,7 +46,7 @@ const ipCache = {};
 let serverTapCache = null;
 let serverTapLastFetch = 0;
 
-const SERVERTAP_URL = "http://78.108.218.31:25887/v1/server";
+const SERVERTAP_BASE = "http://78.108.218.31:25887/v1";
 const SERVERTAP_KEY = "some-long-super-random-string";
 
 async function fetchWithTimeout(url, timeout = 4000, options = {}) {
@@ -85,34 +85,55 @@ function formatMinutes(minutes) {
     .join(" ");
 }
 
+function isBedrockUuid(uuid = "") {
+  return uuid.startsWith("00000000-0000-0000-");
+}
+
 async function getServerTapInfo() {
   const now = Date.now();
 
-  if (serverTapCache && now - serverTapLastFetch < 30000) {
+  if (serverTapCache && now - serverTapLastFetch < 15000) {
     return serverTapCache;
   }
 
   try {
-    const res = await fetchWithTimeout(SERVERTAP_URL, 5000, {
-      headers: {
-        accept: "application/json",
-        key: SERVERTAP_KEY
-      }
-    });
+    const headers = {
+      accept: "application/json",
+      key: SERVERTAP_KEY
+    };
 
-    const data = await res.json();
+    const [serverRes, playersRes] = await Promise.all([
+      fetchWithTimeout(`${SERVERTAP_BASE}/server`, 5000, { headers }),
+      fetchWithTimeout(`${SERVERTAP_BASE}/players`, 5000, { headers })
+    ]);
+
+    const serverData = await serverRes.json();
+    const playersData = await playersRes.json();
+
+    const allPlayers = Array.isArray(playersData)
+      ? playersData.map(player => ({
+        uuid: player.uuid,
+        name_clean:
+          String(player.displayName || "")
+            .replace(/§[0-9A-FK-OR]/gi, "")
+            .trim() || "Unknown"
+      }))
+      : [];
 
     serverTapCache = {
-      tps: data.tps || null,
+      tps: serverData.tps || null,
       hostMachine: {
         provider: "SparkedHost",
         node: "b-ash-01",
-        cpu: `${data.health?.cpus ?? "?"} cores`,
+        cpu: `${serverData.health?.cpus ?? "?"} cores`,
         memory: `${formatBytes(
-          (data.health?.totalMemory || 0) - (data.health?.freeMemory || 0)
-        )} / ${formatBytes(data.health?.maxMemory)}`,
-        uptime: formatMinutes(data.health?.uptime)
-      }
+          (serverData.health?.totalMemory || 0) -
+          (serverData.health?.freeMemory || 0)
+        )} / ${formatBytes(serverData.health?.maxMemory)}`,
+        uptime: formatMinutes(serverData.health?.uptime)
+      },
+      javaPlayers: allPlayers.filter(player => !isBedrockUuid(player.uuid)),
+      bedrockPlayers: allPlayers.filter(player => isBedrockUuid(player.uuid))
     };
 
     serverTapLastFetch = now;
@@ -123,9 +144,7 @@ async function getServerTapInfo() {
 }
 
 async function getIpMeta(ip) {
-  if (ipCache[ip]) {
-    return ipCache[ip];
-  }
+  if (ipCache[ip]) return ipCache[ip];
 
   try {
     const res = await fetchWithTimeout(`http://ip-api.com/json/${ip}`, 5000);
@@ -189,19 +208,11 @@ async function checkMinecraft(service) {
     const res = await fetchWithTimeout(endpoint, 3500);
     const data = await res.json();
 
-    const playerList = Array.isArray(data.players?.list)
-      ? data.players.list
-      : [];
-
     return {
       online: data.online ?? false,
       latency: Date.now() - start,
-      players:
-        typeof data.players?.online === "number"
-          ? data.players.online
-          : playerList.length,
-      maxPlayers: data.players?.max ?? null,
-      playerList
+      players: data.players?.online ?? 0,
+      maxPlayers: data.players?.max ?? null
     };
   } catch {
     return {
@@ -217,17 +228,11 @@ function updateUptime(name, online, latency) {
       checks: 0,
       onlineChecks: 0,
       incidents: [],
-      latencyHistory: [],
       lastOnline: null
     };
   }
 
   const record = memory[name];
-
-  if (latency !== null) {
-    record.latencyHistory.push(latency);
-    record.latencyHistory = record.latencyHistory.slice(-12);
-  }
 
   if (online !== null) {
     if (record.lastOnline !== null && record.lastOnline !== online) {
@@ -248,8 +253,7 @@ function updateUptime(name, online, latency) {
     uptime:
       record.checks > 0
         ? ((record.onlineChecks / record.checks) * 100).toFixed(2)
-        : "N/A",
-    incidents: record.incidents
+        : "N/A"
   };
 }
 
@@ -266,22 +270,31 @@ async function checkService(service, serverTapInfo) {
       ? await getIpMeta(service.ip)
       : {};
 
+  let playerList = [];
+
+  if (service.type === "minecraft-java") {
+    playerList = serverTapInfo?.javaPlayers || [];
+  }
+
+  if (service.type === "minecraft-bedrock") {
+    playerList = serverTapInfo?.bedrockPlayers || [];
+  }
+
   return {
     ...service,
     ...result,
     ...stats,
+    playerList,
     region: ipMeta.region || null,
     provider: ipMeta.provider || null,
     country: ipMeta.country || null,
     flag: ipMeta.flag || "",
-    hostMachine:
-      service.type.startsWith("minecraft")
-        ? serverTapInfo?.hostMachine || null
-        : null,
-    tps:
-      service.type.startsWith("minecraft")
-        ? serverTapInfo?.tps || null
-        : null,
+    hostMachine: service.type.startsWith("minecraft")
+      ? serverTapInfo?.hostMachine || null
+      : null,
+    tps: service.type.startsWith("minecraft")
+      ? serverTapInfo?.tps || null
+      : null,
     checkedAt: new Date().toISOString()
   };
 }

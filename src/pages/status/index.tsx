@@ -165,10 +165,23 @@ export default function StatusPage() {
                   Online players
                 </summary>
 
-                <div className="mt-2 space-y-1 pl-2">
+                <div className="mt-2 space-y-2 pl-1">
                   {service.playerList.map((player, index) => (
-                    <div key={player.uuid || index} className="text-xs text-zinc-300">
-                      {player.name_clean || player.name_raw || "Unknown"}
+                    <div
+                      key={player.uuid || index}
+                      className="flex items-center gap-2 text-xs text-zinc-300"
+                    >
+                      {player.uuid && (
+                        <img
+                          src={`https://mc-heads.net/avatar/${player.uuid}/24`}
+                          alt={player.name_clean || player.name_raw || "Player"}
+                          className="w-5 h-5 rounded-sm"
+                        />
+                      )}
+
+                      <span>
+                        {player.name_clean || player.name_raw || "Unknown"}
+                      </span>
                     </div>
                   ))}
                 </div>
