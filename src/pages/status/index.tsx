@@ -8,6 +8,21 @@ type Incident = {
   duration?: number | null;
 };
 
+type Player = {
+  uuid?: string;
+  name_raw?: string;
+  name_clean?: string;
+};
+
+type HostMachine = {
+  provider: string;
+  node: string;
+  cpu: string;
+  memory: string;
+  disk: string;
+  uptime: string;
+};
+
 type Service = {
   name: string;
   category: string;
@@ -18,22 +33,16 @@ type Service = {
   region?: string;
   online: boolean | null;
   latency: number | null;
-  latencyHistory?: number[];
   uptime: string;
+  checkedAt: string;
+  outageDuration?: string | null;
+  tunnelError?: boolean;
   players?: number;
   maxPlayers?: number;
-  playerList?: string[];
-  outageDuration?: number | null;
+  playerList?: Player[];
+  latencyHistory?: number[];
   incidents?: Incident[];
-  checkedAt: string;
-  hostMachine?: {
-    provider: string;
-    node: string;
-    cpu: string;
-    memory: string;
-    disk: string;
-    uptime: string;
-  };
+  hostMachine?: HostMachine;
 };
 
 export default function StatusPage() {
@@ -92,7 +101,28 @@ export default function StatusPage() {
                 <div className="text-zinc-100">{service.name}</div>
                 <div className="text-xs text-stone-400">
                   {service.latency !== null && `${service.latency}ms`}
-                  {service.players !== undefined && ` • ${service.players}/${service.maxPlayers} players`}
+                  {service.players !== undefined && (
+                    <>
+                      {service.latency !== null && " • "}
+                      {service.players}/{service.maxPlayers} players
+                    </>
+                  )}
+                  {service.playerList &&
+                    service.playerList.length > 0 && (
+                      <details className="text-xs text-stone-400">
+                        <summary className="cursor-pointer">
+                          Online players
+                        </summary>
+
+                        <div className="mt-2 space-y-1 pl-2">
+                          {service.playerList.map((player, i) => (
+                            <div key={player.uuid || i}>
+                              {player.name_clean || player.name_raw}
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    )}
                 </div>
               </div>
 
