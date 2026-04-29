@@ -305,6 +305,8 @@ async function checkHttp(service) {
     }
   }
 
+  /* ---------------- JELLYFIN SPECIAL ENRICHMENT ---------------- */
+
   const hostAlive = await checkTcp("jellyfin.simplysnox.com", 8021);
 
   if (!hostAlive) {
@@ -316,12 +318,30 @@ async function checkHttp(service) {
   }
 
   try {
-    const { response, latency } = await fetchWithTimeout(service.url, 5000);
+    const [{ response, latency }, jellyfinExtra] = await Promise.all([
+      fetchWithTimeout(service.url, 5000),
+      fetchWithTimeout("https://jellyfin.taila85d7a.ts.net/", 5000)
+    ]);
+
+    let jellyfinData = null;
+
+    try {
+      jellyfinData = await jellyfinExtra.response.json();
+    } catch {
+      jellyfinData = null;
+    }
 
     return {
       online: response.ok,
       state: response.ok ? "online" : "service_offline",
-      latency
+      latency,
+
+      provider: jellyfinData?.provider,
+      node: jellyfinData?.node,
+
+      hostMachine: jellyfinData?.hostMachine,
+      network: jellyfinData?.network,
+      system: jellyfinData?.system
     };
   } catch {
     return {
@@ -332,6 +352,8 @@ async function checkHttp(service) {
   }
 }
 
+/* ---------------- CHECKERS ---------------- */
+
 async function checkMinecraft(service, serverTapInfo) {
   try {
     const java = service.endpoints.java;
@@ -340,8 +362,12 @@ async function checkMinecraft(service, serverTapInfo) {
     const start = Date.now();
 
     const [j, b] = await Promise.all([
-      fetch(`https://api.mcstatus.io/v2/status/java/${java.ip}:${java.port}`),
-      fetch(`https://api.mcstatus.io/v2/status/bedrock/${bedrock.ip}:${bedrock.port}`)
+      fetch(
+        `https://api.mcstatus.io/v2/status/java/${java.ip}:${java.port}`
+      ),
+      fetch(
+        `https://api.mcstatus.io/v2/status/bedrock/${bedrock.ip}:${bedrock.port}`
+      )
     ]);
 
     const javaData = await j.json();

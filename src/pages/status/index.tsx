@@ -53,6 +53,11 @@ type Service = {
   highlightUuid?: string;
 
   state?: "online" | "host_offline" | "service_offline";
+
+  /* ---------------- ADDED (JELLYFIN SUPPORT) ---------------- */
+  network?: any;
+  system?: any;
+  node?: string;
 };
 
 export default function StatusPage() {
@@ -162,10 +167,12 @@ export default function StatusPage() {
                       )}
 
                       {service.type === "minecraft" && service.online && service.tps && (
-                        <span className={`px-2 py-0.5 rounded-full text-xs ${Number(service.tps) >= 18
-                          ? "bg-green-500/10 text-green-400"
-                          : "bg-zinc-800 text-zinc-300"
-                          }`}>
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-xs ${Number(service.tps) >= 18
+                              ? "bg-green-500/10 text-green-400"
+                              : "bg-zinc-800 text-zinc-300"
+                            }`}
+                        >
                           TPS {service.tps}
                         </span>
                       )}
@@ -254,8 +261,8 @@ export default function StatusPage() {
                           <div
                             key={player.uuid || index}
                             className={`flex items-center justify-between text-xs ${highlighted
-                              ? "text-red-300 drop-shadow-[0_0_6px_rgba(252,165,165,0.8)]"
-                              : "text-zinc-300"
+                                ? "text-red-300 drop-shadow-[0_0_6px_rgba(252,165,165,0.8)]"
+                                : "text-zinc-300"
                               }`}
                           >
                             <div className="flex items-center gap-2">
@@ -272,8 +279,8 @@ export default function StatusPage() {
 
                             <span
                               className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${player.platform === "Bedrock"
-                                ? "bg-emerald-500/10 text-emerald-300"
-                                : "bg-orange-500/10 text-orange-300"
+                                  ? "bg-emerald-500/10 text-emerald-300"
+                                  : "bg-orange-500/10 text-orange-300"
                                 }`}
                             >
                               {player.platform || "Java"}
@@ -285,24 +292,23 @@ export default function StatusPage() {
                   </details>
                 ) : null}
 
-                {(service.region || service.provider || service.hostMachine) && (
+                {(service.region || service.provider || service.hostMachine || service.network || service.system) && (
                   <details className="mt-2">
                     <summary className="text-xs text-stone-400 cursor-pointer">
                       Debug
                     </summary>
 
                     <div className="mt-3 space-y-3 text-xs text-stone-500">
+
+                      {/* ---------------- REGION / PROVIDER ---------------- */}
                       {(service.region || service.provider) && (
                         <div>
-                          {service.region && (
-                            <div>
-                              {service.flag} {service.region}
-                            </div>
-                          )}
+                          {service.region && <div>{service.flag} {service.region}</div>}
                           {service.provider && <div>{service.provider}</div>}
                         </div>
                       )}
 
+                      {/* ---------------- HOST MACHINE ---------------- */}
                       {service.hostMachine && (
                         <div>
                           {service.hostMachine.node}
@@ -316,11 +322,38 @@ export default function StatusPage() {
                         </div>
                       )}
 
+                      {/* ---------------- JELLYFIN ENRICHED DEBUG ---------------- */}
+                      {service.name === "Jellyfin Media Server" && service.network && (
+                        <div>
+                          <div className="text-stone-400 mb-1">Network</div>
+                          <div>
+                            {service.network.public?.city}, {service.network.public?.region}
+                          </div>
+                          <div>{service.network.public?.provider}</div>
+                          <div>IP: {service.network.public?.ip}</div>
+
+                          <div className="mt-2 text-stone-400">WiFi</div>
+                          <div>
+                            Signal {service.network.wifi?.signal}
+                          </div>
+                        </div>
+                      )}
+
+                      {service.name === "Jellyfin Media Server" && service.system && (
+                        <div>
+                          <div className="text-stone-400 mb-1">System</div>
+                          <div>Load: {service.system.load1m} / {service.system.load5m} / {service.system.load15m}</div>
+                          <div>Uptime: {service.system.uptime}</div>
+                        </div>
+                      )}
+
                       <div>
                         Uptime:{" "}
-                        {service.uptime === "N/A"
+                        {service.name === "Jellyfin Media Server"
                           ? "N/A"
-                          : `${service.uptime}%`}
+                          : service.uptime === "N/A"
+                            ? "N/A"
+                            : `${service.uptime}%`}
                       </div>
                     </div>
                   </details>
