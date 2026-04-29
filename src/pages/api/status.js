@@ -142,6 +142,14 @@ function formatMinutes(minutes) {
     .join(" ");
 }
 
+function cleanName(name = "") {
+  return String(name)
+    .replace(/§[0-9A-FK-OR]/gi, "")
+    .replace(/^\([^)]+\)\s*/g, "")
+    .replace(/^\.+/, "")
+    .trim() || "Unknown";
+}
+
 async function normalizePlayer(player) {
   const uuid = player.uuid;
   const isBedrock = uuid?.startsWith("00000000-0000-0000-");
@@ -149,12 +157,7 @@ async function normalizePlayer(player) {
   if (!isBedrock) {
     return {
       uuid,
-      name_clean:
-        String(player.displayName || "")
-          .replace(/§[0-9A-FK-OR]/gi, "")
-          .replace(/^\([^)]+\)\s*/g, "")
-          .replace(/^\.+/, "")
-          .trim() || "Unknown",
+      name_clean: cleanName(player.displayName),
       platform: "Java"
     };
   }
@@ -172,14 +175,7 @@ async function normalizePlayer(player) {
     const res = await fetch(`https://api.geysermc.org/v2/xbox/xuid/${xuid}`);
     const data = await res.json();
 
-    const gamertag =
-      data?.gamertag ||
-      String(player.displayName || "")
-        .replace(/§[0-9A-FK-OR]/gi, "")
-        .replace(/^\([^)]+\)\s*/g, "")
-        .replace(/^\.+/, "")
-        .trim() ||
-      "Unknown";
+    const gamertag = data?.gamertag || cleanName(player.displayName);
 
     gamertagCache[uuid] = gamertag;
 
@@ -191,12 +187,7 @@ async function normalizePlayer(player) {
   } catch {
     return {
       uuid,
-      name_clean:
-        String(player.displayName || "")
-          .replace(/§[0-9A-FK-OR]/gi, "")
-          .replace(/^\([^)]+\)\s*/g, "")
-          .replace(/^\.+/, "")
-          .trim() || "Unknown",
+      name_clean: cleanName(player.displayName),
       platform: "Bedrock"
     };
   }
@@ -305,7 +296,7 @@ async function checkHttp(service) {
     }
   }
 
-  /* ---------------- JELLYFIN SPECIAL ENRICHMENT ---------------- */
+  /* ---------------- JELLYFIN SPECIAL ---------------- */
 
   const hostAlive = await checkTcp("jellyfin.simplysnox.com", 8021);
 
@@ -323,13 +314,7 @@ async function checkHttp(service) {
       fetchWithTimeout("https://jellyfin.taila85d7a.ts.net/", 5000)
     ]);
 
-    let jellyfinData = null;
-
-    try {
-      jellyfinData = await jellyfinExtra.response.json();
-    } catch {
-      jellyfinData = null;
-    }
+    const jellyfinData = await jellyfinExtra.response.json();
 
     return {
       online: response.ok,
@@ -340,6 +325,8 @@ async function checkHttp(service) {
       node: jellyfinData?.node,
 
       hostMachine: jellyfinData?.hostMachine,
+
+      // NEW STRUCTURES (IMPORTANT)
       network: jellyfinData?.network,
       system: jellyfinData?.system
     };
@@ -352,7 +339,7 @@ async function checkHttp(service) {
   }
 }
 
-/* ---------------- CHECKERS ---------------- */
+/* ---------------- MINECRAFT ---------------- */
 
 async function checkMinecraft(service, serverTapInfo) {
   try {
@@ -399,10 +386,7 @@ async function checkMinecraft(service, serverTapInfo) {
 
 function updateUptime(name, online) {
   if (!memory[name]) {
-    memory[name] = {
-      checks: 0,
-      onlineChecks: 0
-    };
+    memory[name] = { checks: 0, onlineChecks: 0 };
   }
 
   const record = memory[name];

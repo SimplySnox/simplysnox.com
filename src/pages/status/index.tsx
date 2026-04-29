@@ -11,8 +11,38 @@ type Player = {
 type HostMachine = {
   provider?: string;
   node?: string;
-  cpu?: string;
-  memory?: string;
+
+  cpu?: {
+    model?: string;
+    cores?: number;
+    load?: number[];
+  };
+
+  memory?: {
+    used?: string;
+    total?: string;
+  };
+
+  uptime?: string;
+};
+
+type JellyfinNetwork = {
+  public?: {
+    provider?: string;
+    ip?: string;
+  };
+
+  wifi?: {
+    connected?: boolean;
+    signal?: string;
+    quality?: string;
+  };
+};
+
+type JellyfinSystem = {
+  load1m?: string;
+  load5m?: string;
+  load15m?: string;
   uptime?: string;
 };
 
@@ -54,10 +84,9 @@ type Service = {
 
   state?: "online" | "host_offline" | "service_offline";
 
-  /* ---------------- ADDED (JELLYFIN SUPPORT) ---------------- */
-  network?: any;
-  system?: any;
-  node?: string;
+  /* Jellyfin */
+  network?: JellyfinNetwork;
+  system?: JellyfinSystem;
 };
 
 export default function StatusPage() {
@@ -89,17 +118,25 @@ export default function StatusPage() {
     void el.offsetWidth;
     el.classList.add("active");
 
-    setTimeout(() => {
-      el.classList.remove("active");
-    }, 900);
+    setTimeout(() => el.classList.remove("active"), 900);
+  }
+
+  const StatusDot = ({ online }: { online: boolean | null }) => (
+    <span
+      className={`w-2 h-2 rounded-full ${online ? "bg-green-400" : "bg-red-400"
+        }`}
+    />
+  );
+
+  function parseQuality(q?: string) {
+    if (!q) return null;
+    const [a, b] = q.split("/").map(Number);
+    if (!a || !b) return null;
+    return Math.round((a / b) * 100);
   }
 
   const allServices = Object.values(groups).flat();
   const affectedCount = allServices.filter(s => s.online === false).length;
-
-  const StatusDot = ({ online }: { online: boolean | null }) => (
-    <span className={`w-2 h-2 rounded-full ${online ? "bg-green-400" : "bg-red-400"}`} />
-  );
 
   return (
     <div className="bg-main min-h-screen flex flex-col items-center p-4 md:p-8">
@@ -108,7 +145,10 @@ export default function StatusPage() {
       </Head>
 
       <div className="max-w-3xl w-full py-20 space-y-10">
-        <div className={`rounded-xl p-4 border ${overallOnline ? "border-green-500" : "border-red-500"}`}>
+        <div
+          className={`rounded-xl p-4 border ${overallOnline ? "border-green-500" : "border-red-500"
+            }`}
+        >
           <div className="text-zinc-100 font-medium">
             {overallOnline
               ? "All systems operational"
@@ -116,16 +156,22 @@ export default function StatusPage() {
           </div>
 
           <div className="text-xs text-stone-400">
-            Last checked {checkedAt ? new Date(checkedAt).toLocaleString() : "Unknown"}
+            Last checked{" "}
+            {checkedAt ? new Date(checkedAt).toLocaleString() : "Unknown"}
           </div>
         </div>
 
         {Object.entries(groups).map(([category, services]) => (
           <div key={category} className="space-y-3">
-            <div className="text-sm text-stone-400 uppercase tracking-wide">{category}</div>
+            <div className="text-sm text-stone-400 uppercase tracking-wide">
+              {category}
+            </div>
 
             {services.map(service => (
-              <div key={service.name} className="rounded-xl p-4 border border-neutral-700 space-y-3">
+              <div
+                key={service.name}
+                className="rounded-xl p-4 border border-neutral-700 space-y-3"
+              >
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="text-zinc-100 flex items-center gap-2">
@@ -135,229 +181,106 @@ export default function StatusPage() {
 
                     <div className="flex flex-wrap gap-2 mt-2">
                       {service.type === "http" && (
-                        <>
+                        <span className="px-2 py-0.5 rounded-full text-xs bg-zinc-800 text-zinc-300">
+                          HTTP
+                        </span>
+                      )}
+
+                      {service.type === "minecraft" &&
+                        service.online &&
+                        service.players && (
                           <span className="px-2 py-0.5 rounded-full text-xs bg-zinc-800 text-zinc-300">
-                            HTTP
+                            {service.players.total}/
+                            {service.players.max ?? "?"} players
                           </span>
-
-                          {service.category === "Web" && (
-                            <span className="px-2 py-0.5 rounded-full text-xs bg-blue-500/10 text-blue-400">
-                              WEB
-                            </span>
-                          )}
-
-                          {service.category === "Media" && (
-                            <span className="px-2 py-0.5 rounded-full text-xs bg-purple-500/10 text-purple-400">
-                              MEDIA
-                            </span>
-                          )}
-                        </>
-                      )}
-
-                      {service.type === "minecraft" && !service.online && (
-                        <span className="px-2 py-0.5 rounded-full text-xs bg-red-500/10 text-red-400">
-                          Server offline
-                        </span>
-                      )}
-
-                      {service.type === "minecraft" && service.online && service.players && (
-                        <span className="px-2 py-0.5 rounded-full text-xs bg-zinc-800 text-zinc-300">
-                          {service.players.total}/{service.players.max ?? "?"} players
-                        </span>
-                      )}
-
-                      {service.type === "minecraft" && service.online && service.tps && (
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-xs ${Number(service.tps) >= 18
-                              ? "bg-green-500/10 text-green-400"
-                              : "bg-zinc-800 text-zinc-300"
-                            }`}
-                        >
-                          TPS {service.tps}
-                        </span>
-                      )}
-
-                      {service.type === "minecraft" && service.online && service.latency != null && (
-                        <span className="px-2 py-0.5 rounded-full text-xs bg-zinc-800 text-zinc-300">
-                          {service.latency}ms
-                        </span>
-                      )}
+                        )}
                     </div>
                   </div>
 
                   <div
                     className={
-                      service.name === "Jellyfin Media Server"
-                        ? service.state === "host_offline"
-                          ? "text-yellow-400"
-                          : service.state === "service_offline"
-                            ? "text-red-400"
-                            : "text-green-400"
-                        : service.online
-                          ? "text-green-400"
-                          : "text-red-400"
+                      service.online ? "text-green-400" : "text-red-400"
                     }
                   >
-                    {service.name === "Jellyfin Media Server"
-                      ? service.state === "host_offline"
-                        ? "Host Offline"
-                        : service.state === "service_offline"
-                          ? "Service Offline"
-                          : "Online"
-                      : service.online
-                        ? "Online"
-                        : "Offline"}
+                    {service.online ? "Online" : "Offline"}
                   </div>
                 </div>
 
-                {service.type === "http" && service.url && !service.hideUrl && (
-                  <a
-                    href={service.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-blue-400 block"
-                  >
-                    Open service
-                  </a>
-                )}
+                {/* ---------------- JELLYFIN DEBUG REDESIGN ---------------- */}
+                {service.name === "Jellyfin Media Server" &&
+                  (service.network || service.system) && (
+                    <details>
+                      <summary className="text-xs text-stone-400 cursor-pointer">
+                        Debug
+                      </summary>
 
-                {service.type === "minecraft" && service.endpoints && service.online && (
-                  <div className="text-xs text-blue-400 space-y-1">
-                    <div>
-                      Java:{" "}
-                      <span
-                        onClick={e =>
-                          copy(service.endpoints!.java.address, e.currentTarget)
-                        }
-                        className="text-stone-300 cursor-pointer relative copy-toast"
-                      >
-                        {service.endpoints.java.address}
-                      </span>
-                    </div>
-
-                    <div>
-                      Bedrock:{" "}
-                      <span
-                        onClick={e =>
-                          copy(service.endpoints!.bedrock.address, e.currentTarget)
-                        }
-                        className="text-stone-300 cursor-pointer relative copy-toast"
-                      >
-                        {service.endpoints.bedrock.address}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {service.playerList?.length ? (
-                  <details>
-                    <summary className="text-xs text-stone-400 cursor-pointer">Players</summary>
-
-                    <div className="mt-2 space-y-2 pl-1">
-                      {service.playerList.map((player, index) => {
-                        const highlighted = player.uuid === service.highlightUuid;
-
-                        return (
-                          <div
-                            key={player.uuid || index}
-                            className={`flex items-center justify-between text-xs ${highlighted
-                                ? "text-red-300 drop-shadow-[0_0_6px_rgba(252,165,165,0.8)]"
-                                : "text-zinc-300"
-                              }`}
-                          >
-                            <div className="flex items-center gap-2">
-                              {player.uuid && (
-                                <img
-                                  src={`https://mc-heads.net/avatar/${player.uuid}/24`}
-                                  alt={player.name_clean || "Player"}
-                                  className="w-5 h-5 rounded-sm"
-                                />
-                              )}
-
-                              <span>{player.name_clean || "Unknown"}</span>
+                      <div className="mt-3 space-y-3 text-xs text-stone-500">
+                        {/* NETWORK */}
+                        {service.network && (
+                          <div>
+                            <div className="text-stone-400 mb-1">
+                              Network
                             </div>
 
-                            <span
-                              className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${player.platform === "Bedrock"
-                                  ? "bg-emerald-500/10 text-emerald-300"
-                                  : "bg-orange-500/10 text-orange-300"
-                                }`}
-                            >
-                              {player.platform || "Java"}
-                            </span>
+                            <div>
+                              Provider:{" "}
+                              {service.network.public?.provider || "Unknown"}
+                            </div>
+
+                            <div className="mt-1">
+                              WiFi:{" "}
+                              {service.network.wifi?.connected
+                                ? "Connected"
+                                : "Disconnected"}
+                            </div>
+
+                            <div>
+                              Signal: {service.network.wifi?.signal || "N/A"}
+                            </div>
+
+                            <div>
+                              Quality:{" "}
+                              {(() => {
+                                const pct = parseQuality(
+                                  service.network.wifi?.quality
+                                );
+                                return pct !== null ? `${pct}%` : "N/A";
+                              })()}
+                            </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </details>
-                ) : null}
+                        )}
 
-                {(service.region || service.provider || service.hostMachine || service.network || service.system) && (
-                  <details className="mt-2">
-                    <summary className="text-xs text-stone-400 cursor-pointer">
-                      Debug
-                    </summary>
-
-                    <div className="mt-3 space-y-3 text-xs text-stone-500">
-
-                      {/* ---------------- REGION / PROVIDER ---------------- */}
-                      {(service.region || service.provider) && (
-                        <div>
-                          {service.region && <div>{service.flag} {service.region}</div>}
-                          {service.provider && <div>{service.provider}</div>}
-                        </div>
-                      )}
-
-                      {/* ---------------- HOST MACHINE ---------------- */}
-                      {service.hostMachine && (
-                        <div>
-                          {service.hostMachine.node}
-                          {service.hostMachine.cpu &&
-                            ` • CPU ${service.hostMachine.cpu}`}
-                          <br />
-                          {service.hostMachine.memory &&
-                            `RAM ${service.hostMachine.memory}`}
-                          {service.hostMachine.uptime &&
-                            ` • Up ${service.hostMachine.uptime}`}
-                        </div>
-                      )}
-
-                      {/* ---------------- JELLYFIN ENRICHED DEBUG ---------------- */}
-                      {service.name === "Jellyfin Media Server" && service.network && (
-                        <div>
-                          <div className="text-stone-400 mb-1">Network</div>
+                        {/* SYSTEM */}
+                        {service.system && (
                           <div>
-                            {service.network.public?.city}, {service.network.public?.region}
+                            <div className="text-stone-400 mb-1">System</div>
+
+                            <div>
+                              Load: {service.system.load1m} /{" "}
+                              {service.system.load5m} /{" "}
+                              {service.system.load15m}
+                            </div>
+
+                            <br />
+                            <div>Uptime: {service.system.uptime}</div>
+                            <br />
+
+                            <div>
+                              CPU: {service.hostMachine?.cpu?.model || "Unknown"}
+                            </div>
+
+                            <div>
+                              e-pitt-01: {service.hostMachine?.cpu?.cores ?? "?"} cores
+                            </div>
+
+                            <div>
+                              RAM {service.hostMachine?.memory?.used || "?"} / {service.hostMachine?.memory?.total || "?"}
+                            </div>
                           </div>
-                          <div>{service.network.public?.provider}</div>
-                          <div>IP: {service.network.public?.ip}</div>
-
-                          <div className="mt-2 text-stone-400">WiFi</div>
-                          <div>
-                            Signal {service.network.wifi?.signal}
-                          </div>
-                        </div>
-                      )}
-
-                      {service.name === "Jellyfin Media Server" && service.system && (
-                        <div>
-                          <div className="text-stone-400 mb-1">System</div>
-                          <div>Load: {service.system.load1m} / {service.system.load5m} / {service.system.load15m}</div>
-                          <div>Uptime: {service.system.uptime}</div>
-                        </div>
-                      )}
-
-                      <div>
-                        Uptime:{" "}
-                        {service.name === "Jellyfin Media Server"
-                          ? "N/A"
-                          : service.uptime === "N/A"
-                            ? "N/A"
-                            : `${service.uptime}%`}
+                        )}
                       </div>
-                    </div>
-                  </details>
-                )}
+                    </details>
+                  )}
               </div>
             ))}
           </div>
