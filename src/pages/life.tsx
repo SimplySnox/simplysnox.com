@@ -4,9 +4,9 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 
 const previewPhotos = [
-    '/images/gallery/placeholder.png',
-    '/images/gallery/placeholder.png',
-    '/images/gallery/placeholder.png'
+    '/images/gallery/farm-5.jpg',
+    '/images/gallery/farm-6.jpg',
+    '/images/gallery/farm-8.jpg'
 ];
 
 export default function Life() {
