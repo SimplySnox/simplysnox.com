@@ -1,0 +1,151 @@
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+@plugin "daisyui" {
+    themes: bumblebee;
+}
+
+;
+@config '../../tailwind.config.ts';
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentcolor);
+    }
+}
+
+
+body {
+    font-family: var(--font-geist-sans);
+    @apply bg-main;
+}
+
+.code {
+    font-family: var(--font-jetbrains-mono);
+}
+
+/* Normal scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    border: 1px solid #d5d5d5;
+}
+
+::-webkit-scrollbar-track {
+    border-radius: 0;
+    background: #171717;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 0;
+    background: #262626;
+}
+
+/* Scrollbar for x-axis overflowing */
+::-webkit-scrollbar:horizontal {
+    height: 8px;
+    border: 1px solid #d5d5d5;
+}
+
+::-webkit-scrollbar-track:horizontal {
+    background: #171717;
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+    background: #262626;
+}
+
+/* Prevents `daisyUI` from overriding scrollbar styles */
+/* https://github.com/saadeghi/daisyui/discussions/3113#discussioncomment-9959075 */
+*,
+*:hover {
+    scrollbar-color: auto;
+}
+
+/* Make inline code smaller (on mobile) */
+code {
+    @apply text-sm;
+}
+
+/* Use markdown headers' font sizes when inline code is in them */
+h1 code,
+h2 code,
+h3 code,
+h4 code,
+h5 code,
+h6 code {
+    font-size: inherit;
+}
+
+/* Footnotes */
+.footnotes {
+    @apply text-stone-400 text-sm;
+}
+
+.footnotes ol {
+    @apply marker:text-stone-400;
+}
+
+/* ---------------------------
+   Copy feedback (Discord-style)
+---------------------------- */
+
+.copy-toast {
+    position: relative;
+}
+
+.copy-toast::after {
+    content: "Copied!";
+    position: absolute;
+    top: -22px;
+    right: 0;
+
+    font-size: 10px;
+    color: #a3a3a3;
+
+    background: rgba(24, 24, 27, 0.9);
+    border: 1px solid rgba(63, 63, 70, 0.6);
+    padding: 2px 6px;
+    border-radius: 6px;
+
+    opacity: 0;
+    transform: translateY(4px);
+    pointer-events: none;
+}
+
+.copy-toast.active::after {
+    animation: copyFade 0.9s ease forwards;
+}
+
+@keyframes copyFade {
+    0% {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    20% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+
+    70% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-2px);
+    }
+}
