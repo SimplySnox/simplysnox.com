@@ -1,3 +1,5 @@
+import net from "net";
+
 const services = [
   {
     name: "simplysnox.com",
@@ -45,7 +47,11 @@ const services = [
     type: "http",
     hidden: false,
     hideUrl: true,
-    url: "https://jf.simplysnox.com"
+    url: "https://jf.simplysnox.com",
+    tcp: {
+      host: "jellyfin.simplysnox.com",
+      port: 8021
+    }
   },
   {
     name: "The Cove",
@@ -101,6 +107,24 @@ async function fetchWithTimeout(url, timeout = 4000, options = {}) {
   } finally {
     clearTimeout(t);
   }
+}
+
+function checkTcp(host, port, timeout = 4000) {
+  return new Promise(resolve => {
+    const socket = new net.Socket();
+
+    const finish = result => {
+      socket.destroy();
+      resolve(result);
+    };
+
+    socket.setTimeout(timeout);
+    socket.once("connect", () => finish(true));
+    socket.once("timeout", () => finish(false));
+    socket.once("error", () => finish(false));
+
+    socket.connect(port, host);
+  });
 }
 
 /* ---------------- HELPERS ---------------- */
@@ -269,16 +293,37 @@ async function getServerTapInfo() {
 /* ---------------- CHECKERS ---------------- */
 
 async function checkHttp(service) {
+  if (service.tcp) {
+    const hostAlive = await checkTcp(
+      service.tcp.host,
+      service.tcp.port,
+      service.tcp.timeout || 4000
+    );
+
+    if (!hostAlive) {
+      return {
+        online: false,
+        state: "host_offline",
+        latency: null
+      };
+    }
+  }
+
   try {
-    const { response, latency } = await fetchWithTimeout(service.url);
+    const { response, latency } = await fetchWithTimeout(
+      service.url,
+      service.timeout || 4000
+    );
 
     return {
       online: response.ok,
+      state: response.ok ? "online" : "service_offline",
       latency
     };
   } catch {
     return {
       online: false,
+      state: service.tcp ? "service_offline" : undefined,
       latency: null
     };
   }
@@ -293,7 +338,9 @@ async function checkMinecraft(service, serverTapInfo) {
 
     const [j, b] = await Promise.all([
       fetch(`https://api.mcstatus.io/v2/status/java/${java.ip}:${java.port}`),
-      fetch(`https://api.mcstatus.io/v2/status/bedrock/${bedrock.ip}:${bedrock.port}`)
+      fetch(
+        `https://api.mcstatus.io/v2/status/bedrock/${bedrock.ip}:${bedrock.port}`
+      )
     ]);
 
     const javaData = await j.json();

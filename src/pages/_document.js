@@ -4,8 +4,8 @@ class MyDocument extends Document {
   static async getInitialProps(ctx) {
     const initialProps = await Document.getInitialProps(ctx);
     const urlPath = ctx.asPath || ctx.req?.url || '';    
-    const isPostPage = urlPath.startsWith('/writing/');
-    const postSlug = isPostPage ? urlPath.split('/writing/')[1] : '';
+    const isPostPage = urlPath.startsWith('/notes/');
+    const postSlug = isPostPage ? urlPath.split('/notes/')[1] : '';
 
     return { ...initialProps, isPostPage, postSlug, urlPath };
   }
@@ -23,7 +23,7 @@ class MyDocument extends Document {
     const postImage = post.frontmatter?.image || defaultImage;
 
     const canonicalUrl = isPostPage
-      ? `${siteUrl}/writing/${postSlug}`
+      ? `${siteUrl}/notes/${postSlug}`
       : `${siteUrl}${urlPath}`;
     const ogUrl = canonicalUrl;
 

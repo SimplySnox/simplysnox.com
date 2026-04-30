@@ -51,6 +51,8 @@ type Service = {
   hostMachine?: HostMachine | null;
   tps?: string | null;
   highlightUuid?: string;
+
+  state?: "online" | "host_offline" | "service_offline";
 };
 
 export default function StatusPage() {
@@ -176,8 +178,29 @@ export default function StatusPage() {
                     </div>
                   </div>
 
-                  <div className={service.online ? "text-green-400" : "text-red-400"}>
-                    {service.online ? "Online" : "Offline"}
+                  {/* ✅ UPDATED STATUS BLOCK */}
+                  <div
+                    className={
+                      service.state
+                        ? service.state === "host_offline"
+                          ? "text-yellow-400"
+                          : service.state === "service_offline"
+                            ? "text-red-400"
+                            : "text-green-400"
+                        : service.online
+                          ? "text-green-400"
+                          : "text-red-400"
+                    }
+                  >
+                    {service.state
+                      ? service.state === "host_offline"
+                        ? "Host Offline"
+                        : service.state === "service_offline"
+                          ? "Service Offline"
+                          : "Online"
+                      : service.online
+                        ? "Online"
+                        : "Offline"}
                   </div>
                 </div>
 

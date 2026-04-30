@@ -4,15 +4,15 @@ import { useRouter } from 'next/router';
 
 const NAV_ITEMS = [
   { href: '/', label: '/home' },
-  { href: '/projects', label: '/projects' },
-  { href: '/writing', label: '/writing' },
+  { href: '/work', label: '/work' },
+  { href: '/notes', label: '/notes' },
   { href: '/bots', label: '/bots' },
   { href: '/status', label: '/status' },
 ];
 
 const Navbar = () => {
   const router = useRouter();
-  const isWritingPostPage = /^\/writing\/[^/]+$/.test(router.pathname);
+  const isNotesPostPage = /^\/notes\/[^/]+$/.test(router.pathname);
 
   const renderNavItems = () =>
     NAV_ITEMS.map(({ href, label }) => (
@@ -28,10 +28,10 @@ const Navbar = () => {
     )
   );
 
-  // Only shows up when on the /writing/[slug] page
+  // Only shows up when on the /notes/[slug] page
   const backButton = (
     <Link
-      href="/writing"
+      href="/notes"
       className="flex items-center text-stone-400/85 hover:text-stone-500 duration-300"
     >
       Back
@@ -41,7 +41,7 @@ const Navbar = () => {
   return (
     <div className="absolute top-13.5">
       <div className="flex flex-wrap gap-x-2 gap-y-1 items-center">
-        {isWritingPostPage && (
+        {isNotesPostPage && (
           <>
             {backButton}
             <div className="h-4 border-l border-neutral-700/60" />
