@@ -3,12 +3,12 @@ import Head from 'next/head';
 import Navbar from '@/components/Navbar';
 
 const photos = [
-    { src: '/images/gallery/snox.jpg', title: '8/15/25 — Morning fog' },
-    { src: '/images/gallery/snox.jpg', title: '6/24/21 — Summer mowing' },
-    { src: '/images/gallery/snox.jpg', title: '12/3/23 — Sky after rainstorm' },
-    { src: '/images/gallery/snox.jpg', title: '11/3/24 — Old equipment' },
-    { src: '/images/gallery/snox.jpg', title: '6/6/12 — Summer pasture' },
-    { src: '/images/gallery/snox.jpg', title: '10/22/23 — Quiet road' }
+    { src: '/images/gallery/placeholder.png', title: '8/15/25 — Morning fog' },
+    { src: '/images/gallery/placeholder.png', title: '6/24/21 — Summer mowing' },
+    { src: '/images/gallery/placeholder.png', title: '12/3/23 — Sky after rainstorm' },
+    { src: '/images/gallery/placeholder.png', title: '11/3/24 — Old equipment' },
+    { src: '/images/gallery/placeholder.png', title: '6/6/12 — Summer pasture' },
+    { src: '/images/gallery/placeholder.png', title: '10/22/23 — Quiet road' }
 ];
 
 export default function Gallery() {

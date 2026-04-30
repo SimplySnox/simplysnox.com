@@ -4,9 +4,9 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 
 const previewPhotos = [
-    '/images/gallery/snox.jpg',
-    '/images/gallery/snox.jpg',
-    '/images/gallery/snox.jpg'
+    '/images/gallery/placeholder.png',
+    '/images/gallery/placeholder.png',
+    '/images/gallery/placeholder.png'
 ];
 
 export default function Life() {
