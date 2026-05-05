@@ -4,11 +4,11 @@ import { useRouter } from 'next/router';
 
 const NAV_ITEMS = [
   { href: '/', label: '/home' },
+  { href: '/gallery', label: '/gallery' },
   { href: '/work', label: '/work' },
   { href: '/notes', label: '/notes' },
-  // { href: '/guides', label: '/guides' },
   { href: '/gear', label: '/gear' },
-  { href: '/bots', label: '/bots' },
+  // { href: '/bots', label: '/bots' },
   { href: '/status', label: '/status' },
 ];
 
