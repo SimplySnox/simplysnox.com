@@ -55,6 +55,40 @@ const devices = {
             name: 'Xbox One S',
             description: 'Still used occasionally for gaming and testing streaming setups.',
         },
+        {
+            name: 'Nintendo Switch (1st gen)',
+            description: 'Used for gaming and casual streaming demos.',
+        },
+        {
+            name: 'Nintendo Wii x2',
+            description: 'Classic consoles used for retro gaming and fun experiments.',
+        },
+        {
+            name: 'Nintendo DS Lite x3',
+            description: 'Handheld devices for retro DS games and testing old software.',
+        },
+        {
+            name: 'Nintendo 2DS x2',
+            description: 'Handhelds used for DS/3DS backward compatibility testing.',
+        },
+        {
+            name: 'Nintendo 3DS x1',
+            description: 'Main handheld for 3DS games and testing older Nintendo software.',
+        },
+        {
+            name: 'Nintendo 3DS XL x1',
+            description: 'Large-screen handheld used for a better gaming experience.',
+        },
+    ],
+    software: [
+        {
+            name: 'Visual Studio Code',
+            description: 'Primary IDE for most development projects. Lightweight and versatile.',
+        },
+        {
+            name: 'IntelliJ IDEA 2025.2.1',
+            description: 'Used for Minecraft Java plugin development and heavy Java work.',
+        },
     ],
 };
 
@@ -89,7 +123,7 @@ export default function Gear() {
                 <title>Gear | Snox</title>
                 <meta
                     name="description"
-                    content="A curated list of my phones, computers, consoles, and other devices I use for streaming, development, and everyday life."
+                    content="A curated list of my phones, computers, consoles, and development tools for streaming, gaming, and programming."
                 />
             </Head>
 
@@ -98,20 +132,21 @@ export default function Gear() {
                 <div className="space-y-3 animate-blurred-fade-in duration-300">
                     <div className="text-[11px] uppercase tracking-[0.25em] text-stone-500">gear</div>
                     <h1 className="text-zinc-100 text-xl md:text-3xl font-medium leading-snug max-w-xl">
-                        The devices behind everything I do.
+                        The devices, consoles, and tools behind everything I do.
                     </h1>
                     <div className="w-12 border-t border-neutral-800" />
                 </div>
 
                 {/* Intro */}
                 <p className="text-sm md:text-[15px] leading-7 md:leading-8 text-stone-300 animate-blurred-fade-in duration-300">
-                    A curated list of my phones, computers, consoles, and tools that I use for development, streaming, gaming, and everyday life.
+                    A curated list of all my phones, computers, consoles, and software tools I use for development, streaming, gaming, and everyday life.
                 </p>
 
                 {/* Gear Sections */}
                 <GearSection title="Phones" items={devices.phones} />
                 <GearSection title="Computers" items={devices.computers} showSpecs />
                 <GearSection title="Consoles" items={devices.consoles} />
+                <GearSection title="Software" items={devices.software} />
 
                 {/* Footer note */}
                 <div className="text-xs text-stone-500 animate-blurred-fade-in duration-300">

@@ -13,7 +13,7 @@ There are a host of options out there for noting stuff down, some being built sp
 
 However, I did it in a different way to most people, which is one that I haven't seen many other people doing. I noted down most of my stuff on [Discord](https://discord.com):
 
-![An example of a note I would write down within Discord.](/images/noting-down-stuff/note.png)
+![An example of a note I would write down within Discord.](/images/notes/noting-down-stuff/note.png)
 
 At first, this might sound odd. 
 
@@ -23,7 +23,7 @@ That's a fair question. However, anyone can make a [server](https://support.disc
 
 Not to mention, it isn't just me who does this:
 
-![](/images/noting-down-stuff/tweet.png)
+![](/images/notes/noting-down-stuff/tweet.png)
 
 ---
 

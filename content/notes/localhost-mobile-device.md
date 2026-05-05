@@ -24,7 +24,7 @@ Once you open up that link in your browser, you can start making your changes.
 However, on a phone, it is not as simple as that. Trying to do the same thing would show the following on an iPhone device:
 
 <div align="center">
-  <img src="/images/localhost-mobile-device/no-localhost-mobile.png" alt="A Safari error when accessing a localhost URL." width="250" />
+  <img src="/images/notes/localhost-mobile-device/no-localhost-mobile.png" alt="A Safari error when accessing a localhost URL." width="250" />
 </div>
 
 Obviously, this is not ideal. You should be able to test your changes on a mobile device to ensure a good user experience across both mobile and desktop.
@@ -80,7 +80,7 @@ The port number is the number which follows after the `localhost:` part of the U
 
 <div align="center">
 
-  ![](/images/localhost-mobile-device/port-number.png)
+  ![](/images/notes/localhost-mobile-device/port-number.png)
 </div>
 
 Make sure you have this number for [step 4](#4-access-the-url-on-your-phone).

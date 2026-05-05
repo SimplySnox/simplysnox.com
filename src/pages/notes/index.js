@@ -63,7 +63,7 @@ export default function Notes({ posts }) {
             <div className="mb-4 mt-0 md:mt-4 relative animate-blurred-fade-in duration-300">
               <input
                 type="text"
-                placeholder="Search for posts..."
+                placeholder="Search for notes..."
                 value={searchQuery}
                 onChange={handleSearchChange}
                 className="text-lg placeholder:text-stone-400/80 text-soft focus:text-zinc-100 bg-transparent border-b border-neutral-700/60 py-1 outline-hidden rounded-none w-full group duration-300"
