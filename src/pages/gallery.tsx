@@ -39,11 +39,24 @@ export default function Gallery({ photos }: GalleryProps) {
                                 className="w-full h-64 md:h-72 object-cover group-hover:scale-[1.02] duration-500"
                             />
                             <div className="px-4 py-3 text-sm text-stone-400">
-                                {photo.title}
+                                {/* Photo title */}
+                                <div>{photo.title}</div>
+
+                                {/* Formatted EXIF */}
                                 {photo.exif && (
-                                    <div className="text-xs text-stone-500 mt-1">
-                                        ISO: {photo.exif.iso || '—'} | f/{photo.exif.fNumber || '—'} |{' '}
-                                        {photo.exif.exposureTime || '—'}s | {photo.exif.focalLength || '—'}mm
+                                    <div className="text-xs text-stone-500 mt-1 space-y-0.5">
+                                        {photo.exif.camera && <div>{photo.exif.camera}</div>}
+                                        <div>
+                                            {photo.exif.mp && `${photo.exif.mp} MP`}
+                                            {photo.exif.resolution && ` | ${photo.exif.resolution}`}
+                                            {photo.exif.fileSizeMB && ` | ${photo.exif.fileSizeMB}`}
+                                        </div>
+                                        <div>
+                                            {photo.exif.iso && `ISO ${photo.exif.iso}`}
+                                            {photo.exif.focalLength && ` | ${photo.exif.focalLength}`}
+                                            {photo.exif.fNumber && ` | ${photo.exif.fNumber}`}
+                                            {photo.exif.exposureTime && ` | ${photo.exif.exposureTime}`}
+                                        </div>
                                     </div>
                                 )}
                             </div>

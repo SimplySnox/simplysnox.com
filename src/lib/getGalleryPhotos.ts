@@ -20,7 +20,7 @@ export interface Photo {
     };
 }
 
-// Helper: format EXIF like iPhone Photos
+// Cleanly format EXIF
 function formatExif(exif: any, filePath: string) {
     if (!exif) return null;
 
@@ -28,19 +28,25 @@ function formatExif(exif: any, filePath: string) {
     const height = exif.ExifImageHeight ?? exif.ImageHeight ?? 0;
 
     const mp = width && height ? ((width * height) / 1_000_000).toFixed(1) : null;
+    const resolution = width && height ? `${width}x${height}` : null;
 
-    // Exposure time formatting
-    let exposure = exif.ExposureTime;
-    let exposureStr = '';
-    if (exposure) {
-        if (exposure < 0.01) {
-            // Very small → display as 1/x s
-            const denominator = Math.round(1 / exposure);
-            exposureStr = `1/${denominator} s`;
+    // Format exposure time
+    let exposureTime = '';
+    if (exif.ExposureTime) {
+        const exp = exif.ExposureTime;
+        if (exp < 0.01) {
+            const denominator = Math.round(1 / exp);
+            exposureTime = `1/${denominator} s`;
         } else {
-            exposureStr = `${exposure.toFixed(2)} s`;
+            exposureTime = `${exp.toFixed(2)} s`;
         }
     }
+
+    // F-stop
+    const fNumber = exif.FNumber ? `f/${exif.FNumber.toFixed(1)}` : null;
+
+    // Focal length
+    const focalLength = exif.FocalLength ? `${Math.round(exif.FocalLength)} mm` : null;
 
     // File size
     let fileSizeMB: string | null = null;
@@ -51,21 +57,20 @@ function formatExif(exif: any, filePath: string) {
 
     return {
         iso: exif.ISO ?? null,
-        fNumber: exif.FNumber ? `f/${exif.FNumber.toFixed(1)}` : null,
-        exposureTime: exposureStr || null,
-        focalLength: exif.FocalLength ? `${Math.round(exif.FocalLength)} mm` : null,
+        fNumber,
+        exposureTime: exposureTime || null,
+        focalLength,
         camera: exif.Model ?? null,
         dateTaken: exif.DateTimeOriginal
             ? new Date(exif.DateTimeOriginal).toLocaleString()
             : null,
-        resolution: width && height ? `${width}x${height}` : null,
+        resolution,
         mp,
         fileSizeMB,
     };
 }
 
 export async function getGalleryPhotos(): Promise<Photo[]> {
-    // Only JPEG/PNG files
     const files = fs.readdirSync(galleryPath).filter(file =>
         /\.(jpe?g|png)$/i.test(file)
     );
@@ -81,6 +86,7 @@ export async function getGalleryPhotos(): Promise<Photo[]> {
                 console.warn(`Failed to parse EXIF for ${file}`, e);
             }
 
+            // Only one title per photo
             const title = exifData?.DateTimeOriginal
                 ? `${new Date(exifData.DateTimeOriginal).toLocaleDateString()} — ${file}`
                 : file;
