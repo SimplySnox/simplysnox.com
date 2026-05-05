@@ -1,15 +1,12 @@
-// src/pages/guides/index.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import Head from 'next/head';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
-import { useRouter } from 'next/router';
 
 export default function Guides({ guides }) {
-    const router = useRouter();
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const guidesPerPage = 7;
@@ -60,9 +57,7 @@ export default function Guides({ guides }) {
                             </Link>
                             {guide.frontmatter.tags && (
                                 <div className="flex flex-wrap gap-2 text-xs text-stone-400 mt-1">
-                                    {guide.frontmatter.tags.map((tag, i) => (
-                                        <span key={i}>#{tag}</span>
-                                    ))}
+                                    {guide.frontmatter.tags.map((tag, i) => <span key={i}>#{tag}</span>)}
                                 </div>
                             )}
                         </div>
@@ -89,12 +84,19 @@ export default function Guides({ guides }) {
 }
 
 export async function getStaticProps() {
-    const dir = path.join(process.cwd(), 'content/guides');
-    const files = fs.readdirSync(dir);
+    const dir = path.join(process.cwd(), 'content/guides'); // ✅ Updated
+    let files = [];
+    try {
+        files = fs.readdirSync(dir);
+    } catch {
+        files = [];
+    }
+
     const guides = files.map(file => {
         const content = fs.readFileSync(path.join(dir, file), 'utf8');
         const { data } = matter(content);
         return { slug: file.replace(/\.md$/, ''), frontmatter: data };
     });
+
     return { props: { guides } };
 }
