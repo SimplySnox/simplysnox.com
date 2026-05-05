@@ -160,7 +160,7 @@ export default function Post({ post }) {
 }
 
 export async function getStaticPaths() {
-  const postsDirectory = path.join(process.cwd(), 'content');
+  const postsDirectory = path.join(process.cwd(), 'content', 'notes');
   const filenames = fs.readdirSync(postsDirectory);
 
   // Remove .md from file name so that it doesn't show in slug
