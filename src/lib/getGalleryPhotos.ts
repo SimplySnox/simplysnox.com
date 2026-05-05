@@ -86,7 +86,6 @@ export async function getGalleryPhotos(): Promise<Photo[]> {
                 console.warn(`Failed to parse EXIF for ${file}`, e);
             }
 
-            // Only one title per photo
             const title = exifData?.DateTimeOriginal
                 ? `${new Date(exifData.DateTimeOriginal).toLocaleDateString()} — ${file}`
                 : file;
@@ -98,6 +97,13 @@ export async function getGalleryPhotos(): Promise<Photo[]> {
             };
         })
     );
+
+    // Sort newest first
+    photos.sort((a, b) => {
+        const dateA = a.exif?.dateTaken ? new Date(a.exif.dateTaken).getTime() : 0;
+        const dateB = b.exif?.dateTaken ? new Date(b.exif.dateTaken).getTime() : 0;
+        return dateB - dateA; // Descending
+    });
 
     return photos;
 }
