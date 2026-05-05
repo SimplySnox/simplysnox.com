@@ -1,17 +1,13 @@
 import React from 'react';
 import Head from 'next/head';
 import Navbar from '@/components/Navbar';
+import { getGalleryPhotos, Photo } from '@/lib/getGalleryPhotos';
 
-const photos = [
-    { src: '/images/gallery/farm-1.jpg', title: '8/15/25 — Morning fog' },
-    { src: '/images/gallery/farm-2.jpg', title: '5/25/23 — Summer mowing' },
-    { src: '/images/gallery/farm-3.jpg', title: '12/3/23 — Sky after rainstorm' },
-    { src: '/images/gallery/farm-4.jpg', title: '11/25/23 — Old barn' },
-    { src: '/images/gallery/farm-5.jpg', title: '10/22/23 — Herford herd in pasture' },
-    { src: '/images/gallery/farm-6.jpg', title: '10/22/23 — Quiet road' }
-];
+interface GalleryProps {
+    photos: Photo[];
+}
 
-export default function Gallery() {
+export default function Gallery({ photos }: GalleryProps) {
     return (
         <div className="bg-main min-h-screen flex flex-col items-center antialiased p-4 md:p-8">
             <Head>
@@ -44,6 +40,12 @@ export default function Gallery() {
                             />
                             <div className="px-4 py-3 text-sm text-stone-400">
                                 {photo.title}
+                                {photo.exif && (
+                                    <div className="text-xs text-stone-500 mt-1">
+                                        ISO: {photo.exif.iso || '—'} | f/{photo.exif.fNumber || '—'} |{' '}
+                                        {photo.exif.exposureTime || '—'}s | {photo.exif.focalLength || '—'}mm
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))}
@@ -53,4 +55,10 @@ export default function Gallery() {
             </div>
         </div>
     );
+}
+
+// Pre-render at build time
+export async function getStaticProps() {
+    const photos = await getGalleryPhotos();
+    return { props: { photos } };
 }
