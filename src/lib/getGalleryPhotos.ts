@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import exifr from 'exifr';
+import sharp from 'sharp';
 
 const galleryPath = path.join(process.cwd(), 'public', 'images', 'gallery');
 
@@ -8,12 +9,12 @@ export interface Photo {
     src: string;
     title: string;
     exif?: {
-        iso?: number;
-        fNumber?: number;
-        exposureTime?: string;
-        focalLength?: number;
-        camera?: string;
-        dateTaken?: string;
+        iso: number | null;
+        fNumber: number | null;
+        exposureTime: string | null;
+        focalLength: number | null;
+        camera: string | null;
+        dateTaken: string | null;
     };
 }
 
@@ -25,9 +26,17 @@ export async function getGalleryPhotos(): Promise<Photo[]> {
     const photos: Photo[] = await Promise.all(
         files.map(async file => {
             const filePath = path.join(galleryPath, file);
+
             let exifData: any = {};
+
             try {
-                exifData = await exifr.parse(filePath);
+                if (/\.heic$/i.test(file)) {
+                    // Convert HEIC buffer to JPEG in memory for EXIF parsing
+                    const buffer = await sharp(filePath).jpeg().toBuffer();
+                    exifData = await exifr.parse(buffer);
+                } else {
+                    exifData = await exifr.parse(filePath);
+                }
             } catch (e) {
                 console.warn(`Failed to parse EXIF for ${file}`, e);
             }
@@ -40,14 +49,14 @@ export async function getGalleryPhotos(): Promise<Photo[]> {
                 src: `/images/gallery/${file}`,
                 title,
                 exif: {
-                    iso: exifData?.ISO,
-                    fNumber: exifData?.FNumber,
-                    exposureTime: exifData?.ExposureTime?.toString(),
-                    focalLength: exifData?.FocalLength,
-                    camera: exifData?.Model,
+                    iso: exifData?.ISO ?? null,
+                    fNumber: exifData?.FNumber ?? null,
+                    exposureTime: exifData?.ExposureTime?.toString() ?? null,
+                    focalLength: exifData?.FocalLength ?? null,
+                    camera: exifData?.Model ?? null,
                     dateTaken: exifData?.DateTimeOriginal
                         ? new Date(exifData.DateTimeOriginal).toLocaleString()
-                        : undefined,
+                        : null,
                 },
             };
         })
