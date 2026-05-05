@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import exifr from 'exifr';
 
-const galleryPath = path.join(process.cwd(), 'public', 'gallery');
+const galleryPath = path.join(process.cwd(), 'public', 'images', 'gallery');
 
 export interface Photo {
     src: string;
@@ -37,7 +37,7 @@ export async function getGalleryPhotos(): Promise<Photo[]> {
                 : file;
 
             return {
-                src: `/gallery/${file}`,
+                src: `/images/gallery/${file}`,
                 title,
                 exif: {
                     iso: exifData?.ISO,
