@@ -6,94 +6,94 @@ const devices = {
     phones: [
         {
             name: 'iPhone 17 Pro Max',
-            description: 'My main device for streaming, development, and daily use. Excellent camera and performance.',
+            description: 'my trusty daily driver, handles daily life and random chaos with ease.',
         },
         {
             name: 'iPhone 15',
-            description: 'Previous main device; reliable for casual use and backup for content creation.',
+            description: 'backup phone, sometimes gets a little love for testing stuff.',
         },
         {
             name: 'Samsung Galaxy S23+',
-            description: 'Used mostly for running Termux and testing Android apps.',
+            description: 'mostly hanging out in termux, running scripts and doing android things.',
         },
         {
             name: 'iPhone 8',
-            description: 'Older device, mainly for testing or occasional backups.',
+            description: 'oldie but goodie, keeps me nostalgic and reminds me of simpler times.',
         },
         {
             name: 'Samsung Galaxy S20 FE 5G',
-            description: 'Broken screen, kept for parts or experimentation.',
+            description: 'broken screen but still fun to tinker with when i feel adventurous.',
         },
         {
             name: 'Samsung Galaxy S9',
-            description: 'Broken, but still holds sentimental value as my first modern Android.',
+            description: 'broken to pieces, holds sentimental value (and dust).',
         },
         {
             name: 'Samsung Galaxy S10e',
-            description: 'Used during COVID for remote work and streaming experiments.',
+            description: 'covid-era phone, used for streaming experiments and boredom.',
         },
     ],
     computers: [
         {
             name: 'Dell Latitude 3410',
             specs: 'Intel Core i5 • 8GB RAM • 256GB SSD',
-            description: 'School-issued laptop during online classes. Compact and reliable for lightweight dev work.',
+            description: 'school laptop, surprisingly loyal for dev tasks.',
         },
         {
             name: 'HP Laptop 15-bs212wm',
             specs: 'Intel Celeron N4000 • 8GB RAM • 480G SSD',
-            description: 'Used for casual development and older projects; not ideal for modern workloads.',
+            description: 'older laptop for small projects, still puts up a fight.',
         },
         {
             name: 'HP Laptop 17-p121wm',
             specs: 'AMD A8 • 8GB RAM • 500G HDD',
-            description: 'Running Linux Mint 22.2 for my family\'s Jellyfin Media Server.',
+            description: 'runs the family\'s jellyfin server and pretends it\'s fast.',
         },
     ],
     consoles: [
         {
             name: 'Xbox One S',
-            description: 'Still used occasionally for gaming and testing streaming setups.',
+            description: 'gaming and streaming testing, sometimes just for fun.',
         },
         {
             name: 'Nintendo Switch (1st gen)',
             count: 1,
-            description: 'Used for gaming and casual streaming demos.',
+            description: 'casual gaming and occasional chaos with friends.',
         },
         {
             name: 'Nintendo Wii',
             count: 2,
-            description: 'Classic consoles used for retro gaming and fun experiments.',
+            description: 'retro fun, still gets the job done. ps, mario party 8 is a classic!',
         },
         {
             name: 'Nintendo DS Lite',
             count: 3,
-            description: 'Handheld devices for retro DS games and testing old software.',
+            description: 'ds games and a lot of nostalgia-packed button mashing.',
         },
         {
             name: 'Nintendo 2DS',
             count: 2,
-            description: 'Handhelds used for DS/3DS backward compatibility testing.',
+            description: 'testing ds/3ds games, looks cute doing it.',
         },
         {
             name: 'Nintendo 3DS',
             count: 1,
-            description: 'Main handheld for 3DS games and testing older Nintendo software.',
+            description: 'main handheld for 3ds adventures and classics.',
         },
         {
             name: 'Nintendo 3DS XL',
             count: 1,
-            description: 'Large-screen handheld used for a better gaming experience.',
+            description: 'big screen, big fun, still goes strong.',
         },
     ],
     software: [
         {
             name: 'Visual Studio Code',
-            description: 'Primary IDE for most development projects. Lightweight and versatile.',
+            description: 'my daily coding companion, lightweight and forgiving.',
         },
         {
             name: 'IntelliJ IDEA 2025.2.1',
-            description: 'Used for Minecraft Java plugin development and heavy Java work.',
+            description: 'for minecraft plugin chaos and java shenanigans.',
         },
     ],
 };
@@ -136,7 +136,7 @@ export default function Gear() {
                 <title>Gear | Snox</title>
                 <meta
                     name="description"
-                    content="A curated list of my phones, computers, consoles, and development tools for streaming, gaming, and programming."
+                    content="a curated list of my phones, computers, consoles, and development tools for streaming, gaming, and programming."
                 />
             </Head>
 
@@ -145,14 +145,14 @@ export default function Gear() {
                 <div className="space-y-3 animate-blurred-fade-in duration-300">
                     <div className="text-[11px] uppercase tracking-[0.25em] text-stone-500">gear</div>
                     <h1 className="text-zinc-100 text-xl md:text-3xl font-medium leading-snug max-w-xl">
-                        The devices, consoles, and tools behind everything I do.
+                        my gear
                     </h1>
                     <div className="w-12 border-t border-neutral-800" />
                 </div>
 
                 {/* Intro */}
                 <p className="text-sm md:text-[15px] leading-7 md:leading-8 text-stone-300 animate-blurred-fade-in duration-300">
-                    A curated list of all my phones, computers, consoles, and software tools I use for development, streaming, gaming, and everyday life.
+                    a curated list of all my phones, computers, consoles, and software tools i use for development, streaming, gaming, and everyday life.
                 </p>
 
                 {/* Gear Sections */}
@@ -163,7 +163,7 @@ export default function Gear() {
 
                 {/* Footer note */}
                 <div className="text-xs text-stone-500 animate-blurred-fade-in duration-300">
-                    Updated occasionally as my setup evolves.
+                    updated occasionally as my setup evolves.
                 </div>
 
                 <Navbar />
