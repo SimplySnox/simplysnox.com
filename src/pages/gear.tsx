@@ -40,14 +40,14 @@ const devices = {
             description: 'School-issued laptop during online classes. Compact and reliable for lightweight dev work.',
         },
         {
-            name: 'HP Laptop 15-bs2xx',
-            specs: 'Intel Core i3 • 8GB RAM • 480G SSD',
+            name: 'HP Laptop 15-bs212wm',
+            specs: 'Intel Celeron N4000 • 8GB RAM • 480G SSD',
             description: 'Used for casual development and older projects; not ideal for modern workloads.',
         },
         {
             name: 'HP Laptop 17-p121wm',
             specs: 'AMD A8 • 8GB RAM • 500G HDD',
-            description: 'Oldest laptop I still own. Mainly nostalgic and for testing very lightweight software.',
+            description: 'Running Linux Mint 22.2 for my family\'s Jellyfin Media Server.',
         },
     ],
     consoles: [
