@@ -160,7 +160,7 @@ export default function Post({ post }) {
 }
 
 export async function getStaticPaths() {
-  const postsDirectory = path.join(process.cwd(), 'content', 'notes');
+  const postsDirectory = path.join(process.cwd(), 'content/notes');
   const filenames = fs.readdirSync(postsDirectory);
 
   // Remove .md from file name so that it doesn't show in slug
@@ -173,7 +173,7 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const { slug } = params;
-  const filePath = path.join(process.cwd(), 'content', `${slug}.md`);
+  const filePath = path.join(process.cwd(), 'content/notes', `${slug}.md`);
   const fileContent = fs.readFileSync(filePath, 'utf8');
   const { data, content } = matter(fileContent);
   return {

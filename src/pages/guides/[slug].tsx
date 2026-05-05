@@ -106,7 +106,7 @@ export default function Guide({ guide }) {
 
 // Generate paths for all guides
 export async function getStaticPaths() {
-    const dir = path.join(process.cwd(), 'content', 'guides');
+    const dir = path.join(process.cwd(), 'content/guides');
     const files = fs.readdirSync(dir);
     const paths = files.map(file => ({ params: { slug: file.replace(/\.md$/, '') } }));
     return { paths, fallback: false };
