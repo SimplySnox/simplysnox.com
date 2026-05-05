@@ -6,6 +6,8 @@ const NAV_ITEMS = [
   { href: '/', label: '/home' },
   { href: '/work', label: '/work' },
   { href: '/notes', label: '/notes' },
+  { href: '/guides', label: '/guides' },
+  { href: '/gear', label: '/gear' },
   { href: '/bots', label: '/bots' },
   { href: '/status', label: '/status' },
 ];
@@ -19,14 +21,13 @@ const Navbar = () => {
       <Link
         key={href}
         href={href}
-        className={`text-soft hover:text-stone-400 duration-300 flex items-center px-1 -ml-1 ${
-          router.pathname === href ? 'text-zinc-100 underline underline-offset-2 decoration-neutral-700' : ''
-        }`}
+        className={`text-soft hover:text-stone-400 duration-300 flex items-center px-1 -ml-1 ${router.pathname === href ? 'text-zinc-100 underline underline-offset-2 decoration-neutral-700' : ''
+          }`}
       >
         {label}
       </Link>
     )
-  );
+    );
 
   // Only shows up when on the /notes/[slug] page
   const backButton = (
