@@ -38,11 +38,11 @@ export default function Gallery({ photos }: GalleryProps) {
                                 alt={photo.title}
                                 className="w-full h-64 md:h-72 object-cover group-hover:scale-[1.02] duration-500"
                             />
-                            <div className="px-4 py-3 text-sm text-stone-400">
+                            <div className="px-4 py-3 text-sm text-stone-400 space-y-1">
                                 {/* Photo title */}
                                 <div>{photo.title}</div>
 
-                                {/* Formatted EXIF */}
+                                {/* If EXIF exists, show nicely formatted metadata */}
                                 {photo.exif && (
                                     <div className="text-xs text-stone-500 mt-1 space-y-0.5">
                                         {photo.exif.camera && <div>{photo.exif.camera}</div>}
@@ -57,6 +57,13 @@ export default function Gallery({ photos }: GalleryProps) {
                                             {photo.exif.fNumber && ` | ${photo.exif.fNumber}`}
                                             {photo.exif.exposureTime && ` | ${photo.exif.exposureTime}`}
                                         </div>
+                                    </div>
+                                )}
+
+                                {/* If EXIF missing dateTaken, show fallback */}
+                                {!photo.exif?.dateTaken && photo.dateTaken && (
+                                    <div className="text-xs text-stone-500 mt-1">
+                                        Taken: {new Date(photo.dateTaken).toLocaleString()} (file fallback)
                                     </div>
                                 )}
                             </div>

@@ -7,6 +7,7 @@ const galleryPath = path.join(process.cwd(), 'public', 'images', 'gallery');
 export interface Photo {
     src: string;
     title: string;
+    dateTaken: string | null; // For sorting and fallback
     exif?: {
         iso: number | null;
         fNumber: string | null;
@@ -20,7 +21,7 @@ export interface Photo {
     };
 }
 
-// Cleanly format EXIF
+// Format EXIF cleanly for gallery
 function formatExif(exif: any, filePath: string) {
     if (!exif) return null;
 
@@ -30,25 +31,20 @@ function formatExif(exif: any, filePath: string) {
     const mp = width && height ? ((width * height) / 1_000_000).toFixed(1) : null;
     const resolution = width && height ? `${width}x${height}` : null;
 
-    // Format exposure time
+    // Exposure time
     let exposureTime = '';
     if (exif.ExposureTime) {
         const exp = exif.ExposureTime;
         if (exp < 0.01) {
-            const denominator = Math.round(1 / exp);
-            exposureTime = `1/${denominator} s`;
+            exposureTime = `1/${Math.round(1 / exp)} s`;
         } else {
             exposureTime = `${exp.toFixed(2)} s`;
         }
     }
 
-    // F-stop
     const fNumber = exif.FNumber ? `f/${exif.FNumber.toFixed(1)}` : null;
-
-    // Focal length
     const focalLength = exif.FocalLength ? `${Math.round(exif.FocalLength)} mm` : null;
 
-    // File size
     let fileSizeMB: string | null = null;
     try {
         const stat = fs.statSync(filePath);
@@ -86,13 +82,25 @@ export async function getGalleryPhotos(): Promise<Photo[]> {
                 console.warn(`Failed to parse EXIF for ${file}`, e);
             }
 
-            const title = exifData?.DateTimeOriginal
-                ? `${new Date(exifData.DateTimeOriginal).toLocaleDateString()} — ${file}`
+            // Determine dateTaken: EXIF first, fallback to file modified time
+            let dateTaken: string | null = null;
+            if (exifData?.DateTimeOriginal) {
+                dateTaken = new Date(exifData.DateTimeOriginal).toISOString();
+            } else {
+                try {
+                    const stats = fs.statSync(filePath);
+                    dateTaken = stats.mtime.toISOString();
+                } catch { }
+            }
+
+            const title = dateTaken
+                ? `${new Date(dateTaken).toLocaleDateString()} — ${file}`
                 : file;
 
             return {
                 src: `/images/gallery/${file}`,
                 title,
+                dateTaken, // For sorting and fallback display
                 exif: formatExif(exifData, filePath),
             };
         })
@@ -100,9 +108,9 @@ export async function getGalleryPhotos(): Promise<Photo[]> {
 
     // Sort newest first
     photos.sort((a, b) => {
-        const dateA = a.exif?.dateTaken ? new Date(a.exif.dateTaken).getTime() : 0;
-        const dateB = b.exif?.dateTaken ? new Date(b.exif.dateTaken).getTime() : 0;
-        return dateB - dateA; // Descending
+        const timeA = a.dateTaken ? new Date(a.dateTaken).getTime() : 0;
+        const timeB = b.dateTaken ? new Date(b.dateTaken).getTime() : 0;
+        return timeB - timeA;
     });
 
     return photos;
