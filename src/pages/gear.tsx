@@ -41,12 +41,12 @@ const devices = {
         },
         {
             name: 'HP Laptop 15-bs2xx',
-            specs: 'Intel Core i3 • 8GB RAM • HDD',
+            specs: 'Intel Core i3 • 8GB RAM • 480G SSD',
             description: 'Used for casual development and older projects; not ideal for modern workloads.',
         },
         {
             name: 'HP Laptop 17-p121wm',
-            specs: 'AMD A8 • 8GB RAM • HDD',
+            specs: 'AMD A8 • 8GB RAM • 500G HDD',
             description: 'Oldest laptop I still own. Mainly nostalgic and for testing very lightweight software.',
         },
     ],
@@ -57,26 +57,32 @@ const devices = {
         },
         {
             name: 'Nintendo Switch (1st gen)',
+            count: 1,
             description: 'Used for gaming and casual streaming demos.',
         },
         {
-            name: 'Nintendo Wii x2',
+            name: 'Nintendo Wii',
+            count: 2,
             description: 'Classic consoles used for retro gaming and fun experiments.',
         },
         {
-            name: 'Nintendo DS Lite x3',
+            name: 'Nintendo DS Lite',
+            count: 3,
             description: 'Handheld devices for retro DS games and testing old software.',
         },
         {
-            name: 'Nintendo 2DS x2',
+            name: 'Nintendo 2DS',
+            count: 2,
             description: 'Handhelds used for DS/3DS backward compatibility testing.',
         },
         {
-            name: 'Nintendo 3DS x1',
+            name: 'Nintendo 3DS',
+            count: 1,
             description: 'Main handheld for 3DS games and testing older Nintendo software.',
         },
         {
-            name: 'Nintendo 3DS XL x1',
+            name: 'Nintendo 3DS XL',
+            count: 1,
             description: 'Large-screen handheld used for a better gaming experience.',
         },
     ],
@@ -102,7 +108,14 @@ function GearSection({ title, items, showSpecs = false }: { title: string; items
                     <div key={index} className="border-b border-neutral-800 pb-4">
                         <div className="flex flex-col md:flex-row items-start justify-between gap-4">
                             <div>
-                                <div className="text-sm md:text-[15px] text-zinc-200 font-medium">{item.name}</div>
+                                <div className="flex items-center gap-2 text-sm md:text-[15px] text-zinc-200 font-medium">
+                                    {item.name}
+                                    {item.count && (
+                                        <span className="text-xs text-stone-500 bg-neutral-800 px-2 py-0.5 rounded-full font-mono">
+                                            x{item.count}
+                                        </span>
+                                    )}
+                                </div>
                                 {showSpecs && item.specs && (
                                     <div className="text-xs md:text-sm text-stone-400 mt-1">{item.specs}</div>
                                 )}
