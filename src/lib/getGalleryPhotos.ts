@@ -7,7 +7,7 @@ const galleryPath = path.join(process.cwd(), 'public', 'images', 'gallery');
 export interface Photo {
     src: string;
     title: string;
-    dateTaken: string | null; // For sorting and fallback
+    dateTaken: string | null;
     exif?: {
         iso: number | null;
         fNumber: string | null;
@@ -21,8 +21,7 @@ export interface Photo {
     };
 }
 
-// Format EXIF cleanly for gallery
-function formatExif(exif: any, filePath: string) {
+function formatExif(exif: any, fileSizeBytes: number) {
     if (!exif) return null;
 
     const width = exif.ExifImageWidth ?? exif.ImageWidth ?? 0;
@@ -31,87 +30,67 @@ function formatExif(exif: any, filePath: string) {
     const mp = width && height ? ((width * height) / 1_000_000).toFixed(1) : null;
     const resolution = width && height ? `${width}x${height}` : null;
 
-    // Exposure time
-    let exposureTime = '';
+    let exposureTime: string | null = null;
+
     if (exif.ExposureTime) {
         const exp = exif.ExposureTime;
-        if (exp < 0.01) {
-            exposureTime = `1/${Math.round(1 / exp)} s`;
-        } else {
-            exposureTime = `${exp.toFixed(2)} s`;
-        }
+        exposureTime =
+            exp < 0.01
+                ? `1/${Math.round(1 / exp)} s`
+                : `${exp.toFixed(2)} s`;
     }
 
     const fNumber = exif.FNumber ? `f/${exif.FNumber.toFixed(1)}` : null;
     const focalLength = exif.FocalLength ? `${Math.round(exif.FocalLength)} mm` : null;
 
-    let fileSizeMB: string | null = null;
-    try {
-        const stat = fs.statSync(filePath);
-        fileSizeMB = (stat.size / (1024 * 1024)).toFixed(1) + ' MB';
-    } catch { }
-
     return {
         iso: exif.ISO ?? null,
         fNumber,
-        exposureTime: exposureTime || null,
+        exposureTime,
         focalLength,
         camera: exif.Model ?? null,
         dateTaken: exif.DateTimeOriginal
-            ? new Date(exif.DateTimeOriginal).toLocaleString()
+            ? new Date(exif.DateTimeOriginal).toISOString()
             : null,
         resolution,
         mp,
-        fileSizeMB,
+        fileSizeMB: (fileSizeBytes / (1024 * 1024)).toFixed(1) + ' MB',
     };
 }
 
 export async function getGalleryPhotos(): Promise<Photo[]> {
-    const files = fs.readdirSync(galleryPath).filter(file =>
-        /\.(jpe?g|png)$/i.test(file)
+    const files = fs.readdirSync(galleryPath).filter(f =>
+        /\.(jpe?g|png)$/i.test(f)
     );
 
-    const photos: Photo[] = await Promise.all(
+    const photos = await Promise.all(
         files.map(async (file) => {
             const filePath = path.join(galleryPath, file);
-            let exifData: any = {};
 
-            try {
-                exifData = await exifr.parse(filePath);
-            } catch (e) {
-                console.warn(`Failed to parse EXIF for ${file}`, e);
-            }
+            const [exifData, stats] = await Promise.all([
+                exifr.parse(filePath).catch(() => null),
+                fs.promises.stat(filePath),
+            ]);
 
-            // Determine dateTaken: EXIF first, fallback to file modified time
-            let dateTaken: string | null = null;
-            if (exifData?.DateTimeOriginal) {
-                dateTaken = new Date(exifData.DateTimeOriginal).toISOString();
-            } else {
-                try {
-                    const stats = fs.statSync(filePath);
-                    dateTaken = stats.mtime.toISOString();
-                } catch { }
-            }
-
-            const title = dateTaken
-                ? `${new Date(dateTaken).toLocaleDateString()} — ${file}`
-                : file;
+            const dateTaken =
+                exifData?.DateTimeOriginal
+                    ? new Date(exifData.DateTimeOriginal).toISOString()
+                    : stats.mtime.toISOString();
 
             return {
                 src: `/images/gallery/${file}`,
-                title,
-                dateTaken, // For sorting and fallback display
-                exif: formatExif(exifData, filePath),
+                title: file,
+                dateTaken,
+                exif: formatExif(exifData, stats.size),
             };
         })
     );
 
-    // Sort newest first
-    photos.sort((a, b) => {
-        const timeA = a.dateTaken ? new Date(a.dateTaken).getTime() : 0;
-        const timeB = b.dateTaken ? new Date(b.dateTaken).getTime() : 0;
-        return timeB - timeA;
-    });
+    photos.sort(
+        (a, b) =>
+            new Date(b.dateTaken ?? 0).getTime() -
+            new Date(a.dateTaken ?? 0).getTime()
+    );
 
     return photos;
 }
