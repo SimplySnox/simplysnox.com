@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import Head from '../components/Layout';
 import '../styles/index.css';
 import '../styles/github-alerts.css';
+import '../styles/paytrack.css';
 import localFont from 'next/font/local';
 
 const geistSans = localFont({
