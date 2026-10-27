@@ -1,0 +1,311 @@
+.paytrack {
+  --pt-bg: #f7f7f2;
+  --pt-ink: #252e2c;
+  --pt-muted: #737d77;
+  --pt-line: #e4e7df;
+  --pt-orange: #dc5c2d;
+  --pt-green: #46735f;
+  background: var(--pt-bg);
+  color: var(--pt-ink);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+.paytrack *, .paytrack *::before, .paytrack *::after { box-sizing: border-box; }
+.paytrack h1, .paytrack h2, .paytrack h3, .paytrack h4, .paytrack p { margin: 0; }
+.paytrack h1 { font-size: clamp(24px, 2.7vw, 32px); font-weight: 650; line-height: 1.2; letter-spacing: -.045em; }
+.paytrack h2 { font-size: 17px; font-weight: 650; line-height: 1.35; letter-spacing: -.025em; }
+.paytrack h3 { font-size: 15px; font-weight: 650; line-height: 1.4; letter-spacing: -.015em; }
+.paytrack button, .paytrack input, .paytrack select, .paytrack textarea { font: inherit; }
+.paytrack button, .paytrack a, .paytrack input, .paytrack select, .paytrack textarea { -webkit-tap-highlight-color: transparent; }
+.paytrack button { cursor: pointer; }
+.paytrack button:disabled { cursor: wait; opacity: .55; }
+.paytrack a { color: inherit; text-decoration: none; }
+.paytrack a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.paytrack button:focus-visible, .paytrack a:focus-visible, .paytrack input:focus-visible, .paytrack select:focus-visible, .paytrack textarea:focus-visible {
+  outline: 3px solid #e76b3c88;
+  outline-offset: 3px;
+}
+.paytrack svg { flex-shrink: 0; }
+.paytrack ::selection { background: #f7ceb9; color: #262b27; }
+.paytrack .pt-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 224px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  background: #1e2425;
+  color: #bdc6c0;
+  padding: 34px 22px 22px;
+}
+.paytrack .pt-brand { display: flex; align-items: center; gap: 11px; color: #fff; font-size: 23px; font-weight: 650; letter-spacing: -.06em; }
+.paytrack .pt-brand-mark { display: inline-flex; align-items: center; justify-content: center; width: 35px; height: 35px; border-radius: 10px; background: #e76b3c; color: #fff; font-size: 15px; font-weight: 750; letter-spacing: -.06em; transform: rotate(-5deg); }
+.paytrack .pt-brand small { display: block; color: #87968e; font-size: 10px; font-weight: 400; letter-spacing: .08em; text-transform: uppercase; margin-top: 1px; }
+.paytrack .pt-nav { display: flex; flex-direction: column; gap: 7px; margin-top: 47px; }
+.paytrack .pt-nav button { border: 1px solid transparent; background: transparent; color: #a3afa8; display: flex; align-items: center; gap: 12px; border-radius: 9px; padding: 12px 13px; text-align: left; font-size: 12px; font-weight: 500; transition: color .18s, background .18s; }
+.paytrack .pt-nav button svg { width: 17px; height: 17px; opacity: .85; }
+.paytrack .pt-nav button:hover { background: #ffffff08; color: #f0f4ed; }
+.paytrack .pt-nav button.is-active { color: #fff; background: #ffffff0d; border-color: #ffffff08; box-shadow: inset 3px 0 #e76b3c; }
+.paytrack .pt-nav button.is-active svg { color: #ed956d; opacity: 1; }
+.paytrack .pt-sidebar-footer { margin-top: auto; border-top: 1px solid #ffffff12; padding-top: 20px; font-size: 11px; display: grid; gap: 14px; }
+.paytrack .pt-sidebar-footer .pt-muted { color: #87968e; }
+.paytrack .pt-sidebar-footer > div { overflow-wrap: anywhere; }
+.paytrack .pt-sidebar-footer .pt-button { color: #c5cec7; padding: 7px 0; justify-content: flex-start; font-size: 11px; }
+.paytrack .pt-main { margin-left: 224px; min-height: 100vh; }
+.paytrack .pt-topbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 32px 42px 27px; border-bottom: 1px solid var(--pt-line); background: #ffffff55; }
+.paytrack .pt-eyebrow { color: var(--pt-muted); font-size: 10px; letter-spacing: .15em; text-transform: uppercase; font-weight: 600; margin-bottom: 7px; }
+.paytrack .pt-topbar-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.paytrack .pt-content { max-width: 1320px; margin: 0 auto; padding: 28px 42px 48px; display: grid; gap: 23px; }
+.paytrack .pt-period-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.paytrack .pt-period { display: flex; align-items: center; gap: 12px; font-size: 12px; font-weight: 550; }
+.paytrack .pt-period > span { min-width: 160px; text-align: center; }
+.paytrack .pt-period small { font-weight: 400; color: var(--pt-muted); }
+.paytrack .pt-overview-grid { display: grid; grid-template-columns: 1.9fr 1fr; gap: 20px; }
+.paytrack .pt-hero { position: relative; overflow: hidden; min-height: 246px; border-radius: 15px; background: radial-gradient(ellipse at 100% 2%, #65503c 0, transparent 65%), #273630; color: #f3f5ed; padding: 28px 30px 24px; display: flex; flex-direction: column; align-items: flex-start; }
+.paytrack .pt-hero::after { content: ''; width: 260px; height: 260px; border: 1px solid #ffffff0b; border-radius: 50%; position: absolute; right: -90px; top: -90px; box-shadow: 0 0 0 45px #ffffff03, 0 0 0 90px #ffffff03; pointer-events: none; }
+.paytrack .pt-hero-label { color: #c4cec5; font-size: 12px; display: flex; align-items: center; gap: 8px; }
+.paytrack .pt-hero-value { font-size: clamp(40px, 4.5vw, 61px); font-weight: 500; line-height: 1.15; letter-spacing: -.06em; margin-top: 15px; font-variant-numeric: tabular-nums; }
+.paytrack .pt-hero > p { color: #b3bfb5; font-size: 11px; margin-top: 7px; max-width: 350px; }
+.paytrack .pt-hero-footer { border-top: 1px solid #ffffff18; padding-top: 17px; margin-top: 24px; width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px; color: #b7c4b9; font-size: 11px; }
+.paytrack .pt-hero-footer strong { color: #f5f6ef; font-weight: 500; }
+.paytrack .pt-clock-card { border: 1px solid var(--pt-line); background: #fff; border-radius: 15px; padding: 25px 25px 22px; display: flex; flex-direction: column; align-items: flex-start; }
+.paytrack .pt-clock-card > .pt-button { width: 100%; justify-content: center; margin-top: auto; }
+.paytrack .pt-clock-card .pt-form-actions { width: 100%; margin-top: auto; padding-top: 17px; }
+.paytrack .pt-clock-card .pt-form-actions .pt-button { flex: 1; justify-content: center; padding-left: 8px; padding-right: 8px; }
+.paytrack .pt-clock-card > p { color: var(--pt-muted); font-size: 11px; margin: 7px 0 17px; }
+.paytrack .pt-clock-time { font-size: 40px; font-weight: 500; letter-spacing: -.055em; margin-top: 13px; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.paytrack .pt-live-dot { display: inline-block; width: 6px; height: 6px; background: #6f9c7f; border-radius: 50%; box-shadow: 0 0 0 4px #6f9c7f15; margin: 0 4px; }
+.paytrack .pt-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 17px; }
+.paytrack .pt-metric { position: relative; border: 1px solid var(--pt-line); background: #fff; border-radius: 12px; padding: 21px 23px; }
+.paytrack .pt-metric-icon { color: #a0a89f; position: absolute; right: 20px; top: 21px; }
+.paytrack .pt-metric-icon svg { width: 17px; height: 17px; }
+.paytrack .pt-metric-label { color: var(--pt-muted); font-size: 11px; }
+.paytrack .pt-metric-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.paytrack strong.pt-metric-value { display: block; }
+.paytrack .pt-metric > small { color: var(--pt-muted); font-size: 11px; }
+.paytrack .pt-metric-value { font-size: 29px; line-height: 1.2; font-weight: 550; letter-spacing: -.05em; margin: 11px 0 8px; font-variant-numeric: tabular-nums; }
+.paytrack .pt-metric-value small { font-size: 12px; color: #8b9389; letter-spacing: 0; margin-left: 4px; font-weight: 400; }
+.paytrack .pt-metric > p { font-size: 10px; color: var(--pt-muted); }
+.paytrack .pt-two-col { display: grid; grid-template-columns: 1.35fr 1fr; gap: 20px; align-items: start; }
+.paytrack .pt-panel { background: #fff; border: 1px solid var(--pt-line); border-radius: 13px; padding: 23px 25px; min-width: 0; }
+.paytrack .pt-panel-heading { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 22px; }
+.paytrack .pt-panel-heading p { color: var(--pt-muted); font-size: 11px; margin-top: 4px; }
+.paytrack .pt-panel-heading .pt-button { font-size: 11px; padding: 4px 0; }
+.paytrack .pt-chart { display: flex; gap: 12px; align-items: stretch; min-height: 200px; padding-top: 17px; background: repeating-linear-gradient(to top, transparent, transparent 45px, #eef0ea 45px, #eef0ea 46px); }
+.paytrack .pt-chart-col { display: flex; flex: 1; flex-direction: column; justify-content: flex-end; align-items: center; min-width: 0; }
+.paytrack .pt-chart-bars { height: 156px; width: 100%; display: flex; align-items: flex-end; justify-content: center; gap: 4px; }
+.paytrack .pt-bar-gross, .paytrack .pt-bar-net { display: block; max-width: 22px; width: 33%; border-radius: 4px 4px 0 0; min-height: 2px; }
+.paytrack .pt-bar-gross { background: #e6e9e1; }
+.paytrack .pt-bar-net { background: #7c9d83; }
+.paytrack .pt-chart-date { font-size: 9px; color: var(--pt-muted); padding-top: 10px; white-space: nowrap; }
+.paytrack .pt-chart-label { color: var(--pt-ink); font-size: 10px; font-weight: 550; padding-bottom: 7px; }
+.paytrack .pt-legend { display: flex; align-items: center; gap: 14px; color: var(--pt-muted); font-size: 10px; }
+.paytrack .pt-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.paytrack .pt-legend i { display: inline-block; width: 7px; height: 7px; border-radius: 2px; background: #e1e5da; }
+.paytrack .pt-legend span:last-child i { background: #7c9d83; }
+.paytrack .pt-week-row { padding: 16px 0; border-bottom: 1px solid #edf0e9; }
+.paytrack .pt-week-row:first-of-type { padding-top: 0; }
+.paytrack .pt-week-row:last-child { padding-bottom: 0; border-bottom: 0; }
+.paytrack .pt-week-row > div:first-child { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12px; }
+.paytrack .pt-week-row strong { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.paytrack .pt-week-row p { font-size: 10px; color: var(--pt-muted); margin-top: 7px; }
+.paytrack .pt-progress { margin-top: 12px; background: #edf0e9; height: 5px; border-radius: 5px; overflow: hidden; }
+.paytrack .pt-progress > span { display: block; height: 100%; background: #7c9d83; border-radius: 5px; }
+.paytrack .pt-shift-list { display: grid; gap: 0; }
+.paytrack .pt-shift-row { display: flex; align-items: center; gap: 15px; padding: 17px 0; border-bottom: 1px solid #edf0e9; }
+.paytrack .pt-shift-row:first-child { padding-top: 0; }
+.paytrack .pt-shift-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.paytrack .pt-date-tile { width: 40px; height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f3f5ee; border-radius: 8px; color: #566752; font-size: 16px; font-weight: 600; flex-shrink: 0; line-height: 1.2; }
+.paytrack .pt-date-tile small { text-transform: uppercase; letter-spacing: .06em; font-size: 8px; font-weight: 500; margin-bottom: 2px; }
+.paytrack .pt-row-main { flex: 1; min-width: 0; }
+.paytrack .pt-row-main strong { font-size: 12px; font-weight: 550; }
+.paytrack .pt-row-main p { font-size: 10px; color: var(--pt-muted); margin-top: 3px; overflow-wrap: anywhere; }
+.paytrack .pt-row-value { text-align: right; font-weight: 550; font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.paytrack .pt-row-value small { color: var(--pt-muted); font-size: 10px; font-weight: 400; display: block; }
+.paytrack .pt-row-actions { display: flex; gap: 4px; }
+.paytrack .pt-pill { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #e3e8dd; border-radius: 99px; padding: 4px 9px; font-size: 9px; font-weight: 500; color: #6f7a70; white-space: nowrap; }
+.paytrack .pt-pill svg { width: 11px; height: 11px; }
+.paytrack .pt-pill-green { background: #eef4e9; color: #5a7552; border-color: #e4eddd; }
+.paytrack .pt-pill-orange { background: #fcf0e8; color: #ae632f; border-color: #f3e4d7; }
+.paytrack .pt-empty { display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center; min-height: 190px; padding: 25px 15px; gap: 8px; }
+.paytrack .pt-empty-icon { background: #f2f4ec; border: 1px solid #e8ecdf; border-radius: 13px; padding: 14px; color: #83927b; margin-bottom: 4px; }
+.paytrack .pt-empty-icon svg { width: 24px; height: 24px; }
+.paytrack .pt-empty h3 { font-size: 13px; font-weight: 550; }
+.paytrack .pt-empty p { max-width: 320px; color: var(--pt-muted); font-size: 11px; line-height: 1.75; }
+.paytrack .pt-empty .pt-button { margin-top: 8px; }
+.paytrack .pt-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.paytrack .pt-field { display: flex; flex-direction: column; gap: 7px; color: #47564a; font-size: 11px; font-weight: 550; }
+.paytrack .pt-field small, .paytrack .pt-field p { font-size: 10px; font-weight: 400; color: var(--pt-muted); line-height: 1.7; }
+.paytrack .pt-input { display: block; width: 100%; min-width: 0; border: 1px solid #dce2d6; background: #fff; color: #283729; border-radius: 7px; padding: 10px 12px; min-height: 41px; font-weight: 400; font-size: 12px; transition: border-color .18s, box-shadow .18s; color-scheme: light; }
+.paytrack .pt-input:hover { border-color: #b9c7ad; }
+.paytrack .pt-input:focus { border-color: #78956b; box-shadow: 0 0 0 3px #78956b0c; }
+.paytrack .pt-input::placeholder { color: #9aa491; }
+.paytrack textarea.pt-input { min-height: 80px; resize: vertical; }
+.paytrack select.pt-input { appearance: auto; }
+.paytrack .pt-form-wide { grid-column: 1 / -1; }
+.paytrack .pt-form-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding-top: 5px; }
+.paytrack .pt-form-actions > .pt-muted { margin-right: auto; }
+.paytrack .pt-checkbox { display: flex; align-items: flex-start; gap: 10px; font-size: 11px; color: #60705b; font-weight: 400; line-height: 1.7; }
+.paytrack .pt-checkbox input { flex-shrink: 0; width: 15px; height: 15px; margin-top: 3px; accent-color: #d96030; }
+.paytrack .pt-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid #dfe5d9; background: #fff; color: #43533e; padding: 9px 14px; border-radius: 7px; font-size: 11px; font-weight: 550; line-height: 1.5; white-space: nowrap; transition: background .16s, transform .16s, box-shadow .16s; text-decoration: none; }
+.paytrack .pt-button svg { width: 14px; height: 14px; }
+.paytrack .pt-button:hover { background: #f2f5ed; text-decoration: none; }
+.paytrack .pt-button:active { transform: translateY(1px); }
+.paytrack .pt-button-primary { background: #df6738; border-color: #df6738; color: #fff; box-shadow: 0 2px 2px #89370d0a; }
+.paytrack .pt-button-primary:hover { background: #cd582a; border-color: #cd582a; }
+.paytrack .pt-button-quiet { border-color: transparent; background: transparent; color: #6d7a67; box-shadow: none; }
+.paytrack .pt-button-quiet:hover { background: #e9eee2; }
+.paytrack .pt-button-danger { color: #b64f3a; border-color: #f0dcd4; background: #fff7f4; }
+.paytrack .pt-button-danger:hover { background: #fce9e2; }
+.paytrack .pt-icon-button { display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--pt-line); border-radius: 7px; background: #fff; color: #75806d; width: 30px; height: 30px; padding: 5px; flex-shrink: 0; }
+.paytrack .pt-icon-button svg { width: 14px; height: 14px; }
+.paytrack .pt-icon-button:hover { background: #eff3e9; color: #40583a; }
+.paytrack .pt-notice, .paytrack .pt-error, .paytrack .pt-success { display: flex; gap: 9px; align-items: flex-start; border: 1px solid #e8e8d5; background: #f6f6e9; padding: 12px 15px; border-radius: 8px; color: #7c7853; font-size: 11px; line-height: 1.8; overflow-wrap: anywhere; }
+.paytrack .pt-notice svg, .paytrack .pt-error svg, .paytrack .pt-success svg { flex-shrink: 0; width: 15px; height: 15px; margin-top: 2px; }
+.paytrack .pt-error { background: #fff2ee; color: #a94531; border-color: #f1d8d0; }
+.paytrack .pt-success { background: #edf5e9; color: #4a6f3f; border-color: #dce8d4; }
+.paytrack .pt-muted { color: var(--pt-muted); }
+.paytrack .pt-small { font-size: 11px; line-height: 1.75; }
+.paytrack .pt-paychecks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.paytrack .pt-paycheck { background: #fff; border: 1px solid var(--pt-line); border-radius: 12px; padding: 23px; }
+.paytrack .pt-paycheck-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.paytrack .pt-paycheck-top p { color: var(--pt-muted); font-size: 10px; margin-top: 3px; }
+.paytrack .pt-paycheck-values { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 17px; margin-bottom: 16px; border-bottom: 1px solid #edf0e9; }
+.paytrack .pt-paycheck-values strong { font-size: 26px; font-weight: 550; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+.paytrack .pt-paycheck-values span, .paytrack .pt-paycheck-values small { color: var(--pt-muted); font-size: 10px; display: block; margin-bottom: 3px; }
+.paytrack .pt-paycheck > .pt-form-actions { justify-content: space-between; }
+.paytrack .pt-formula { padding: 18px 20px; border: 1px dashed #dfe6d7; border-radius: 9px; background: #f7f9f2; color: #677b5d; font-size: 11px; line-height: 1.9; }
+.paytrack .pt-formula strong { display: block; font-weight: 550; font-size: 13px; margin-bottom: 4px; }
+.paytrack .pt-login { min-height: 100vh; display: grid; place-items: center; padding: 40px 24px; background: radial-gradient(ellipse at 10% 0%, #e8ecdf, transparent 55%), #f7f7f2; }
+.paytrack .pt-login-grid { width: min(960px, 100%); display: grid; grid-template-columns: 1.1fr 1fr; background: #fff; border: 1px solid #dfe4d8; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 100px #283b1710; }
+.paytrack .pt-login-card { padding: 48px 42px; display: grid; gap: 23px; align-content: center; }
+.paytrack .pt-login-card h1 { font-size: 28px; }
+.paytrack .pt-login-card h1 + p { font-size: 12px; line-height: 1.8; color: var(--pt-muted); margin-top: 12px; }
+.paytrack .pt-login-brand { display: flex; gap: 11px; align-items: center; font-size: 24px; font-weight: 650; letter-spacing: -.06em; margin-bottom: 16px; }
+.paytrack .pt-login-card form { display: grid; gap: 17px; }
+.paytrack .pt-login-card form > .pt-button { width: 100%; padding: 11px; }
+.paytrack .pt-login-card > .pt-muted { font-size: 10px; }
+.paytrack .pt-login-visual { position: relative; overflow: hidden; background: radial-gradient(ellipse at 100% 5%, #65503c, transparent 70%), #263931; padding: 50px 40px; color: #f4f6eb; display: flex; flex-direction: column; justify-content: center; min-height: 520px; }
+.paytrack .pt-login-visual::before { content: ''; position: absolute; width: 380px; height: 380px; border-radius: 50%; border: 1px solid #ffffff0b; right: -260px; bottom: -220px; box-shadow: 0 0 0 60px #ffffff04, 0 0 0 120px #ffffff03; }
+.paytrack .pt-login-visual h2 { font-size: 35px; font-weight: 450; letter-spacing: -.045em; line-height: 1.22; margin: 24px 0 18px; max-width: 300px; }
+.paytrack .pt-login-visual h1 { font-size: 38px; font-weight: 500; line-height: 1.2; margin: 34px 0 18px; }
+.paytrack .pt-login-visual > .pt-small { display: flex; align-items: center; gap: 8px; margin-top: 42px; }
+.paytrack .pt-login-visual > .pt-brand { margin-bottom: 36px; }
+.paytrack .pt-login-visual .pt-eyebrow { color: #b3beb2; }
+.paytrack .pt-page-footer { display: flex; justify-content: space-between; gap: 20px; color: var(--pt-muted); font-size: 10px; padding-top: 10px; }
+.paytrack .pt-page-footer span { max-width: 460px; text-align: right; }
+.paytrack .pt-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.paytrack .pt-sidebar-footer > a, .paytrack .pt-topbar-actions > .pt-muted, .paytrack .pt-panel-heading h2 { display: flex; align-items: center; gap: 8px; }
+.paytrack .pt-login-visual p { font-size: 12px; color: #b7c5b6; line-height: 1.9; max-width: 280px; }
+.paytrack .pt-login-visual ul { display: grid; gap: 15px; list-style: none; margin: 35px 0 0; padding: 0; }
+.paytrack .pt-login-visual li { display: flex; align-items: center; gap: 11px; font-size: 11px; color: #d2dbc9; }
+.paytrack .pt-login-visual li svg { width: 17px; height: 17px; color: #b0c19e; }
+.paytrack .pt-modal-backdrop { position: fixed; inset: 0; z-index: 100; background: #15201888; backdrop-filter: blur(5px); display: grid; place-items: center; padding: 25px; }
+.paytrack .pt-modal { background: #fff; width: min(610px, 100%); border-radius: 17px; padding: 28px; max-height: calc(100dvh - 50px); overflow-y: auto; overscroll-behavior: contain; box-shadow: 0 24px 100px #09180733; }
+.paytrack .pt-modal-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding-bottom: 24px; }
+.paytrack .pt-modal-heading h2 { font-size: 22px; }
+.paytrack .pt-modal-heading p { font-size: 11px; color: var(--pt-muted); margin-top: 5px; }
+.paytrack .pt-upload { border: 1px dashed #ccd7c2; border-radius: 10px; background: #f7f9f2; padding: 22px 16px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 9px; color: #708263; font-size: 11px; transition: background .18s, border-color .18s; }
+.paytrack .pt-upload:hover, .paytrack .pt-upload:focus-within { background: #f0f5e9; border-color: #96aa84; }
+.paytrack .pt-upload > svg { width: 25px; height: 25px; color: #94a787; }
+.paytrack .pt-upload input[type=file] { max-width: 100%; font-size: 11px; }
+.paytrack .pt-upload-preview { display: block; width: 100%; max-height: 200px; object-fit: contain; border-radius: 7px; background: #eff2e9; }
+.paytrack .pt-file-details { font-size: 10px; color: #75836b; display: flex; align-items: center; flex-wrap: wrap; gap: 9px; overflow-wrap: anywhere; }
+.paytrack .pt-file-details a { color: #b8542d; text-decoration: underline; text-underline-offset: 3px; }
+.paytrack .pt-backup-summary { display: flex; gap: 24px; flex-wrap: wrap; padding: 18px 20px; border: 1px solid #e1e8d9; background: #f5f8ee; border-radius: 10px; margin: 18px 0; }
+.paytrack .pt-backup-summary > div { display: grid; gap: 2px; font-size: 10px; color: var(--pt-muted); }
+.paytrack .pt-backup-summary strong { font-size: 25px; font-weight: 550; letter-spacing: -.04em; color: #40543a; }
+.paytrack .pt-loading { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; color: #7c8c70; background: var(--pt-bg); font-size: 12px; }
+.paytrack .pt-loading svg { animation: pt-spin 1.5s linear infinite; }
+@keyframes pt-spin { to { transform: rotate(360deg); } }
+@media (min-width: 1500px) {
+  .paytrack .pt-topbar { padding-left: max(42px, calc((100vw - 1544px) / 2 + 42px)); padding-right: max(42px, calc((100vw - 1544px) / 2 + 42px)); }
+}
+@media (max-width: 1100px) {
+  .paytrack .pt-sidebar { width: 196px; padding: 28px 16px 20px; }
+  .paytrack .pt-main { margin-left: 196px; }
+  .paytrack .pt-topbar { padding: 28px 26px 23px; }
+  .paytrack .pt-content { padding: 24px 26px 38px; }
+  .paytrack .pt-topbar-actions { gap: 7px; }
+  .paytrack .pt-overview-grid { grid-template-columns: 1.6fr 1fr; gap: 15px; }
+  .paytrack .pt-hero { padding: 24px; }
+  .paytrack .pt-clock-card { padding: 22px 18px; }
+  .paytrack .pt-two-col { gap: 15px; }
+  .paytrack .pt-panel { padding: 21px; }
+  .paytrack .pt-metric { padding: 19px; }
+  .paytrack .pt-metric-icon { display: none; }
+  .paytrack .pt-paycheck-values strong { font-size: 23px; }
+}
+@media (max-width: 760px) {
+  .paytrack { font-size: 13px; }
+  .paytrack .pt-sidebar { position: sticky; top: 0; width: 100%; height: auto; padding: 14px 20px 0; gap: 15px; }
+  .paytrack .pt-brand { font-size: 20px; gap: 9px; }
+  .paytrack .pt-brand-mark { width: 29px; height: 29px; border-radius: 8px; font-size: 12px; }
+  .paytrack .pt-brand small { display: inline-block; margin-left: 8px; font-size: 9px; }
+  .paytrack .pt-nav { flex-direction: row; gap: 4px; margin-top: 0; overflow-x: auto; margin-left: -8px; margin-right: -8px; scrollbar-width: none; padding: 0 0 7px; }
+  .paytrack .pt-nav::-webkit-scrollbar { display: none; }
+  .paytrack .pt-nav button { font-size: 10px; padding: 10px 10px; gap: 6px; flex-shrink: 0; border-radius: 6px; }
+  .paytrack .pt-nav button svg { width: 13px; height: 13px; }
+  .paytrack .pt-nav button.is-active { box-shadow: inset 0 -2px #e76b3c; }
+  .paytrack .pt-sidebar-footer { display: none; }
+  .paytrack .pt-main { margin-left: 0; }
+  .paytrack .pt-topbar { padding: 24px 20px 19px; align-items: flex-start; gap: 12px; }
+  .paytrack .pt-topbar-actions { justify-content: flex-end; }
+  .paytrack .pt-topbar-actions .pt-button { padding: 8px 10px; font-size: 10px; }
+  .paytrack .pt-topbar-actions .pt-pill { font-size: 8px; }
+  .paytrack .pt-content { padding: 20px 20px 32px; gap: 18px; }
+  .paytrack .pt-eyebrow { font-size: 8px; margin-bottom: 6px; }
+  .paytrack h1 { font-size: 26px; }
+  .paytrack .pt-period-toolbar { gap: 10px; }
+  .paytrack .pt-period { gap: 7px; font-size: 11px; }
+  .paytrack .pt-period > span { min-width: 146px; }
+  .paytrack .pt-overview-grid, .paytrack .pt-two-col { grid-template-columns: 1fr; gap: 16px; }
+  .paytrack .pt-hero { min-height: 230px; padding: 25px; }
+  .paytrack .pt-hero-value { font-size: 52px; }
+  .paytrack .pt-clock-card { padding: 23px; }
+  .paytrack .pt-clock-time { font-size: 35px; }
+  .paytrack .pt-clock-card > .pt-button { margin-top: 0; }
+  .paytrack .pt-clock-card .pt-form-actions { padding-top: 0; }
+  .paytrack .pt-metrics { gap: 9px; }
+  .paytrack .pt-metric { border-radius: 10px; padding: 15px 12px; }
+  .paytrack .pt-metric-value { font-size: 25px; margin-top: 9px; margin-bottom: 7px; }
+  .paytrack .pt-metric-label { font-size: 10px; }
+  .paytrack .pt-metric > p { font-size: 8px; }
+  .paytrack .pt-metric-value small { font-size: 9px; margin-left: 2px; }
+  .paytrack .pt-panel { padding: 21px; }
+  .paytrack .pt-panel-heading { margin-bottom: 20px; }
+  .paytrack .pt-chart { gap: 8px; }
+  .paytrack .pt-paychecks { grid-template-columns: 1fr; gap: 14px; }
+  .paytrack .pt-paycheck-values strong { font-size: 28px; }
+  .paytrack .pt-form-grid { grid-template-columns: 1fr; gap: 16px; }
+  .paytrack .pt-form-actions { gap: 8px; }
+  .paytrack .pt-form-actions > .pt-button { white-space: normal; }
+  .paytrack .pt-row-actions { gap: 2px; }
+  .paytrack .pt-shift-row { gap: 10px; }
+  .paytrack .pt-row-value { font-size: 12px; }
+  .paytrack .pt-row-main strong { font-size: 11px; }
+  .paytrack .pt-row-main p { font-size: 9px; }
+  .paytrack .pt-date-tile { width: 35px; height: 40px; font-size: 15px; }
+  .paytrack .pt-shift-row .pt-icon-button { width: 26px; height: 28px; border-color: transparent; background: transparent; }
+  .paytrack .pt-login { padding: 24px 18px; }
+  .paytrack .pt-login-grid { grid-template-columns: 1fr; max-width: 440px; }
+  .paytrack .pt-login-card { padding: 34px 28px; gap: 22px; }
+  .paytrack .pt-login-visual { display: none; }
+  .paytrack .pt-modal-backdrop { padding: 15px; align-items: center; }
+  .paytrack .pt-modal { max-height: calc(100dvh - 30px); padding: 23px; border-radius: 14px; }
+  .paytrack .pt-modal-heading { padding-bottom: 22px; }
+  .paytrack .pt-modal-heading h2 { font-size: 20px; }
+}
+@media (max-width: 380px) {
+  .paytrack .pt-topbar { flex-direction: column; gap: 15px; }
+  .paytrack .pt-topbar-actions { justify-content: flex-start; }
+  .paytrack .pt-content { padding-left: 14px; padding-right: 14px; }
+  .paytrack .pt-metric { padding: 13px 10px; }
+  .paytrack .pt-metric-value { font-size: 22px; }
+  .paytrack .pt-nav button { padding-left: 8px; padding-right: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .paytrack *, .paytrack *::before, .paytrack *::after { animation: none !important; scroll-behavior: auto !important; transition: none !important; }
+}
